@@ -1,0 +1,8 @@
+ALGUMAS INSTRUÇÕES BÁSICAS
+
+1) Coloque o artigo referente à rede convolucional implementada no diretório "paper".
+2) Implemente os seguintes arquivos do diretório "source/app": cnn_extraction.c e cnn_plugin.c
+3) Utilize Makefile para compilar as aplicações e bibliotecas
+4) Respeite a estrutura de diretórios do projeto (lib, include, src)
+5) As imagens de entrada devem estar no formato PPM (P6)
+
