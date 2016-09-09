@@ -28,5 +28,7 @@ void writePPM(const char *filename, PPMImage *img);
 // Sample function that changes the RGB of each pixel of the C structured ppm image
 void changeColorPPM(PPMImage *img);
 
+// Convolution function
+double convolution(PPMImage *img, int kernel_size, int coord, int channel, double weights[]);
 
 #endif // _ppm_tools_h

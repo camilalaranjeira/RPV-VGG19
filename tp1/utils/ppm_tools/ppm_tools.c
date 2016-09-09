@@ -1,6 +1,7 @@
 // file that defines each function declared in ppm_tools header
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "ppm_tools.h"
 
 
@@ -143,3 +144,44 @@ void changeColorPPM(PPMImage *img)
          }
     }
 }
+
+
+
+// Convolution function
+double convolution(PPMImage *img, int kernel_size, int coord, int channel, double weights[]){
+
+  // return variable
+  double convolution_result = 0.0;
+ 
+  //kernel of sets
+  int off_set = floor(kernel_size*kernel_size/2);
+
+  // check the channel 
+  
+  
+  for(int i = coord - off_set - 1 ; i < coord + off_set; i++ ){
+
+    switch(channel) {
+       // Red 
+       case 0 :
+         convolution_result +=  weights[i] * img->data[i].red;
+         //img->data[i].red  = weights[i] * img->data[i].red;
+         break;
+       // Green
+       case 1 :
+         convolution_result +=  weights[i] * img->data[i].green;
+         //img->data[i].green = weights[i] * img->data[i].green;
+         break;
+       // Blue
+       case 2 :
+         convolution_result +=  weights[i] * img->data[i].blue;
+         //img->data[i].blue = weights[i] * img->data[i].blue;
+         break;
+    }
+
+  }
+ 
+  return convolution_result;
+
+}  
+
