@@ -147,8 +147,9 @@ void changeColorPPM(PPMImage *img)
 
 
 
+
 // Convolution function
-double convolution(PPMImage *img, int kernel_size, int coord, int channel, double weights[]){
+double convolution(PPMImage *img, int kernel_size, int coord, double weights[]){
 
   // return variable
   double convolution_result = 0.0;
@@ -156,32 +157,49 @@ double convolution(PPMImage *img, int kernel_size, int coord, int channel, doubl
   //kernel of sets
   int off_set = floor(kernel_size*kernel_size/2);
 
-  // check the channel 
-  
   
   for(int i = coord - off_set - 1 ; i < coord + off_set; i++ ){
 
-    switch(channel) {
-       // Red 
-       case 0 :
-         convolution_result +=  weights[i] * img->data[i].red;
-         //img->data[i].red  = weights[i] * img->data[i].red;
-         break;
-       // Green
-       case 1 :
-         convolution_result +=  weights[i] * img->data[i].green;
-         //img->data[i].green = weights[i] * img->data[i].green;
-         break;
-       // Blue
-       case 2 :
-         convolution_result +=  weights[i] * img->data[i].blue;
-         //img->data[i].blue = weights[i] * img->data[i].blue;
-         break;
-    }
+    convolution_result +=  weights[i] * img->data[i].red;
+    convolution_result +=  weights[i+9] * img->data[i].green;
+    convolution_result +=  weights[i+18] * img->data[i].blue;
 
   }
  
-  return convolution_result;
+  // Return as ReLU
+  return (convolution_result <= 0) ? 0 : convolution_result;
 
-}  
+}
+
+
+
+// convolution layer
+//PPMImage *img[] convolution_layer(PPMImage *img, int channel_depth, int stride, int kernel_size, int output_size, double weights[]) { 
+
+  // Variables (lembrar de dar Free depois) 
+  //PPMImage *imgs[] = (PPMImage *)malloc(sizeof(PPMImage) * output_size);
+  //int i,j;
+
+  //// check if img exisits
+  //if(img){
+
+  //  for(j=0; j < channel_depth; j++){
+
+  //    PPMImage *feature_map_img;
+  //    
+  //    //iterates over each image pixel
+  //    for(i=0;i<img->x*img->y;i++){
+  //          
+  //         // calls convolution for each pixel (channels are not colors anymore)
+  //         feature_map_img->data[i].red = convolution(img, kernel_size, i, weights);
+  //    }
+  //
+  //    // here feature_map is ready
+  //    imgs[j] = feature_map_img;
+  //  } 
+  //}
+
+  
+//}  
+
 

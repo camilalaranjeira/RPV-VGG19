@@ -29,6 +29,7 @@ void writePPM(const char *filename, PPMImage *img);
 void changeColorPPM(PPMImage *img);
 
 // Convolution function
-double convolution(PPMImage *img, int kernel_size, int coord, int channel, double weights[]);
+double convolution(PPMImage *img, int kernel_size, int coord, double weights[]);
+
 
 #endif // _ppm_tools_h
