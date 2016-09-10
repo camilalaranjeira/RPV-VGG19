@@ -19,6 +19,7 @@ void main(){
     // write the image back to ppm format
     writePPM("fig_example_changed.ppm",image);
 
+	/*
     PPMImage *imgs[3];
     separateImageChannel(image,imgs);
 
