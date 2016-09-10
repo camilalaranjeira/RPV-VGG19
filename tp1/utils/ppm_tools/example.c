@@ -19,6 +19,15 @@ void main(){
     // write the image back to ppm format
     writePPM("fig_example_changed.ppm",image);
 
+    PPMImage *imgs[3];
+    separateImageChannel(image,imgs);
+
+
+    writePPM("fig_example_changed1.ppm",imgs[0]);
+    writePPM("fig_example_changed2.ppm",imgs[1]);
+    writePPM("fig_example_changed3.ppm",imgs[2]);
+	*/
+
     // just a pause step, telling the the job is done 
     printf("%sJob done, press any key to continue ...", KGRN);
     getchar();
