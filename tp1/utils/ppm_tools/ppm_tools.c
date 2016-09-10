@@ -183,7 +183,7 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 
 	int i;
 
-	///check if image exists
+	///check if image is null
 	  if(img){
 
 		  //generate one feature map for each image channel

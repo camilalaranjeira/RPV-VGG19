@@ -23,7 +23,7 @@ PPMImage *readPPM(const char *filename);
 // Function that receives a C structured  PPMImage and write it as a true ppm image in the path "filename" given 
 void writePPM(const char *filename, PPMImage *img);
 
-// Function to split an input image into three 1-channel feature maps
+// Function to split an input image into three 1-channel feature maps. To be used on the first layer
 void separateImageChannel(PPMImage *img, PPMImage *imgs[]);
 
 // Sample function that changes the RGB of each pixel of the C structured ppm image
