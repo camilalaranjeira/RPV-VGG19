@@ -147,37 +147,6 @@ void changeColorPPM(PPMImage *img)
 
 
 //function to split input image into 3 separate channels (feature maps)
-PPMImage *imgs[] separateImageChannel(PPMImage *img) {
-
-	int numberChannels = 3; //This function is only used on the first layer --> param is fixed
-	PPMImage *imgs[] = (PPMImage *)malloc(sizeof(PPMImage) * numberChannels);
-	int i;
-
-	///check if image exists
-	  if(img){
-
-	      PPMImage *feature_map_img;
-
-	      //iterates over each image pixel
-	      for(i=0;i<img->x*img->y;i++){
-	    	  feature_map_img_red->data[i] = img->data[i].red;
-	    	  feature_map_img_green->data[i] = img->data[i].green;
-	    	  feature_map_img_blue->data[i] = img->data[i].blue;
-
-	      }
-
-	      //assemble the separate feature maps (1 for each channel)
-	      imgs[0] = feature_map_img_red;
-	      imgs[1] = feature_map_img_green;
-	      imgs[2] = feature_map_img_blue;
-	    }
-
-	  return imgs;
-
-}
-
-
-//function to split input image into 3 separate channels (feature maps)
 //each resultant feature map store values into the red channel (0s into other channels)
 void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 
