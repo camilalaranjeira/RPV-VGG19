@@ -146,6 +146,85 @@ void changeColorPPM(PPMImage *img)
 }
 
 
+//function to split input image into 3 separate channels (feature maps)
+PPMImage *imgs[] separateImageChannel(PPMImage *img) {
+
+	int numberChannels = 3; //This function is only used on the first layer --> param is fixed
+	PPMImage *imgs[] = (PPMImage *)malloc(sizeof(PPMImage) * numberChannels);
+	int i;
+
+	///check if image exists
+	  if(img){
+
+	      PPMImage *feature_map_img;
+
+	      //iterates over each image pixel
+	      for(i=0;i<img->x*img->y;i++){
+	    	  feature_map_img_red->data[i] = img->data[i].red;
+	    	  feature_map_img_green->data[i] = img->data[i].green;
+	    	  feature_map_img_blue->data[i] = img->data[i].blue;
+
+	      }
+
+	      //assemble the separate feature maps (1 for each channel)
+	      imgs[0] = feature_map_img_red;
+	      imgs[1] = feature_map_img_green;
+	      imgs[2] = feature_map_img_blue;
+	    }
+
+	  return imgs;
+
+}
+
+
+//function to split input image into 3 separate channels (feature maps)
+//each resultant feature map store values into the red channel (0s into other channels)
+void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
+
+	int i;
+
+	///check if image exists
+	  if(img){
+
+		  //generate one feature map for each image channel
+	      PPMImage *feature_map_img_red = (PPMImage *)malloc(sizeof(PPMImage));
+	      PPMImage *feature_map_img_green = (PPMImage *)malloc(sizeof(PPMImage));
+	      PPMImage *feature_map_img_blue = (PPMImage *)malloc(sizeof(PPMImage));
+
+	      //allocate memory to store the image data
+	      feature_map_img_red->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+	      feature_map_img_green->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+	      feature_map_img_blue->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+
+	      //set image size
+	      feature_map_img_red->x = img->x;feature_map_img_red->y = img->y;
+	      feature_map_img_green->x = img->x;feature_map_img_green->y = img->y;
+	      feature_map_img_blue->x = img->x;feature_map_img_blue->y = img->y;
+
+
+	      //iterates over each image pixel
+	      for(i=0;i<img->x*img->y;i++){
+	    	  feature_map_img_red->data[i].red = img->data[i].red;
+	    	  feature_map_img_green->data[i].red = img->data[i].green;
+	    	  feature_map_img_blue->data[i].red = img->data[i].blue;
+
+	    	  //insert 0s into other channels
+	    	  feature_map_img_red->data[i].green = 0;
+	          feature_map_img_green->data[i].green = 0;
+	    	  feature_map_img_blue->data[i].green = 0;
+
+	    	  feature_map_img_red->data[i].blue = 0;
+	    	  feature_map_img_green->data[i].blue = 0;
+	    	  feature_map_img_blue->data[i].blue = 0;
+
+	      }
+
+	      //insert into an array
+	      imgs[0] = feature_map_img_red;
+	      imgs[1] = feature_map_img_green;
+	      imgs[2] = feature_map_img_blue;
+	  }
+}
 
 
 // Convolution function
