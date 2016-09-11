@@ -32,5 +32,11 @@ void changeColorPPM(PPMImage *img);
 // Convolution function
 double convolution(PPMImage *img, int kernel_size, int coord, double weights[]);
 
+//max pooling function
+PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
+
+//function to compute the max of an array
+unsigned char max(unsigned char poolRegion[], int kernelSize);
+
 
 #endif // _ppm_tools_h

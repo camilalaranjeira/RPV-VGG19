@@ -19,7 +19,8 @@ void main(){
     // write the image back to ppm format
     writePPM("fig_example_changed.ppm",image);
 
-	/*
+
+    /* teste da função que separa os canais de uma imagem de entrada
     PPMImage *imgs[3];
     separateImageChannel(image,imgs);
 
@@ -27,6 +28,11 @@ void main(){
     writePPM("fig_example_changed1.ppm",imgs[0]);
     writePPM("fig_example_changed2.ppm",imgs[1]);
     writePPM("fig_example_changed3.ppm",imgs[2]);
+	*/
+
+    /*teste da função de max pooling
+    PPMImage *pooledImage = maxPool(image,2,2);
+    writePPM("fig_example_maxpooled.ppm",pooledImage);
 	*/
 
     // just a pause step, telling the the job is done 

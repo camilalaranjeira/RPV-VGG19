@@ -146,6 +146,71 @@ void changeColorPPM(PPMImage *img)
 }
 
 
+unsigned char max(unsigned char poolRegion[], int kernelSize) {
+
+	int i;
+	unsigned char maxValue = poolRegion[0];
+	for (i=1;i<kernelSize*kernelSize;i++) {
+		if (poolRegion[i]>maxValue) {
+			maxValue = poolRegion[i];
+		}
+	}
+
+	return maxValue;
+}
+
+
+//function to perform max pooling on an array
+PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride) {
+
+	//instantiate pooled image
+	PPMImage *pooledImage = (PPMImage *)malloc(sizeof(PPMImage));
+
+
+	// check if img exists
+	if(featureMap){
+
+		//compute size of pooled image (feature map)
+		int pooledDimension = (featureMap->x-kernelSize)/stride+1;
+
+
+		//allocate memory for the output pooled image
+		pooledImage->data = (PPMPixel*)malloc(pooledDimension * pooledDimension * sizeof(PPMPixel));
+		pooledImage->x = pooledDimension; pooledImage->y = pooledDimension;
+
+
+		//iterate over each image pixel
+		//remember that each feature map contains data only on the red channel
+		int i,j,k;
+		int dataIndex = 0;
+		unsigned char poolRegion[kernelSize*kernelSize];
+
+		for(i=0;i<(featureMap->x*featureMap->y);i = i+stride){
+
+			//catch pixels on the delimited region and put them into the poolregion
+			for (j=0;j<kernelSize;j++) {
+				for (k=0;k<kernelSize;k++) {
+					poolRegion[j*kernelSize+k] = featureMap->data[i+k+j*featureMap->x].red;
+				}
+			}
+
+
+			//perform the max pooling
+			pooledImage->data[dataIndex].red = max(poolRegion, kernelSize);
+			dataIndex++;
+
+			//performs a line offset
+			if (i!=0 && i%(featureMap->x-stride)==0) {
+				i = i+(kernelSize-1)*(featureMap->x);
+			}
+
+		}
+
+	}
+	return pooledImage;
+}
+
+
 //function to split input image into 3 separate channels (feature maps)
 //each resultant feature map store values into the red channel (0s into other channels)
 void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
