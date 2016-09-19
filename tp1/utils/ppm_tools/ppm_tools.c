@@ -228,6 +228,8 @@ PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSiz
 	//iterate over each image pixel
 	int i,j,z;
 	int weightOffset = kernelSize*kernelSize;
+	int stepOffset = weightOffset/2;
+
 
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
@@ -241,7 +243,7 @@ PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSiz
 				int line = 0;
 				double pixValue = 0;
 
-				for (j=0;j<kernelSize*kernelSize;j++) {
+				for (j=-1*stepOffset;j<=stepOffset;j++) {
 					pixValue += inputImage[z]->data[line*sampleImage->x+i+j].red*weights[z*weightOffset+weightIndex];
 
 					weightIndex++;
