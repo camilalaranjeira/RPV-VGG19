@@ -38,5 +38,8 @@ PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
 //function to compute the max of an array
 unsigned char max(unsigned char poolRegion[], int kernelSize);
 
+//function to compute the convolution of a kernel over the image
+PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int numOutputs);
+
 
 #endif // _ppm_tools_h

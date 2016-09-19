@@ -35,6 +35,20 @@ void main(){
     writePPM("fig_example_maxpooled.ppm",pooledImage);
 	*/
 
+
+    /*teste da convolução com kernel de média (blur)
+
+    PPMImage *imgs[3];
+    separateImageChannel(image,imgs);
+
+	//vetor de pesos de média considerando 3 dimensões de entrada
+    double weightVectorMedia[27] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11};
+
+    PPMImage *convolutedImage = convoluteKernel(imgs, weightVectorMedia, 3, 1, 1, 3, 64);
+    writePPM("fig_example_convoluted.ppm",convolutedImage);
+
+    */
+
     // just a pause step, telling the the job is done 
     printf("%sJob done, press any key to continue ...", KGRN);
     getchar();

@@ -210,6 +210,59 @@ PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride) {
 	return pooledImage;
 }
 
+//function that convolutes a kernel over the image
+PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int numOutputs) {
+
+	//instantiate a convoluted image
+	PPMImage *convolutedImage = (PPMImage *)malloc(sizeof(PPMImage));
+
+	//compute size of convoluted image (feature map)
+	//x and y dimensions are equal
+	PPMImage *sampleImage = inputImage[0];
+	int convDimension = (sampleImage->x-kernelSize+2*paddingSize)/stride+1;
+
+	//allocate memory for the output convoluted image
+	convolutedImage->data = (PPMPixel*)malloc(convDimension * convDimension * sizeof(PPMPixel));
+	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
+
+	//iterate over each image pixel
+	int i,j,z;
+	int weightOffset = kernelSize*kernelSize;
+
+	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
+
+		//varre só nos pixels e desconsidera os 0s do padding
+		for(i=paddingOffset;i<(sampleImage->x*sampleImage->y)-paddingOffset;i = i+stride){
+
+			//varre os diferentes feature maps
+			for (z=0;z<depth;z++) {
+
+				int weightIndex = 0;
+				int line = 0;
+				double pixValue = 0;
+
+				for (j=0;j<kernelSize*kernelSize;j++) {
+					pixValue += inputImage[z]->data[line*sampleImage->x+i+j].red*weights[z*weightOffset+weightIndex];
+
+					weightIndex++;
+					if ((j+1)%(kernelSize)==0) { //tem que deslocar esse índice pra acessar a posição certa (linha) dos dados da imagem
+						line++;
+					}
+
+				}
+				convolutedImage->data[i-paddingOffset].red = pixValue;
+
+				if (convolutedImage->data[i-paddingOffset].red<0) {
+					convolutedImage->data[i-paddingOffset].red = 0; //reLu
+				}
+			}
+
+
+		}
+
+	return convolutedImage;
+}
+
 
 //function to split input image into 3 separate channels (feature maps)
 //each resultant feature map store values into the red channel (0s into other channels)
