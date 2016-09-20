@@ -29,9 +29,6 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]);
 // Sample function that changes the RGB of each pixel of the C structured ppm image
 void changeColorPPM(PPMImage *img);
 
-// Convolution function
-double convolution(PPMImage *img, int kernel_size, int coord, double weights[]);
-
 //max pooling function
 PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
 
@@ -39,7 +36,11 @@ PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
 unsigned char max(unsigned char poolRegion[], int kernelSize);
 
 //function to compute the convolution of a kernel over the image
-PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int numOutputs);
+void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage);
+
+
+//generate all featuremaps for layer
+PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumer); 
 
 
 #endif // _ppm_tools_h

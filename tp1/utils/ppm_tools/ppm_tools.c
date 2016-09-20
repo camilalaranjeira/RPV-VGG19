@@ -211,10 +211,10 @@ PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride) {
 }
 
 //function that convolutes a kernel over the image
-PPMImage *convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int numOutputs) {
+void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage) {
 
 	//instantiate a convoluted image
-	PPMImage *convolutedImage = (PPMImage *)malloc(sizeof(PPMImage));
+	//PPMImage *convolutedImage = (PPMImage *)malloc(sizeof(PPMImage));
 
 	//compute size of convoluted image (feature map)
 	//x and y dimensions are equal
@@ -316,58 +316,23 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 }
 
 
-// Convolution function
-double convolution(PPMImage *img, int kernel_size, int coord, double weights[]){
 
-  // return variable
-  double convolution_result = 0.0;
- 
-  //kernel of sets
-  int off_set = floor(kernel_size*kernel_size/2);
+// Generate all featuremaps for the layer
+PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumer){
+    
+    PPMImage *featuremaps = malloc(outputNumer * sizeof(PPMImage));
 
-  
-  for(int i = coord - off_set - 1 ; i < coord + off_set; i++ ){
+    //Generate all featuremaps 
+    for(int i = 0; i < outputNumer; i++){
 
-    convolution_result +=  weights[i] * img->data[i].red;
-    convolution_result +=  weights[i+9] * img->data[i].green;
-    convolution_result +=  weights[i+18] * img->data[i].blue;
+      double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
+      convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i]);
+      //featuremaps[i] = *inputImage[0];
+        
+    }  
+    
+    return featuremaps;
+}  
 
-  }
- 
-  // Return as ReLU
-  return (convolution_result <= 0) ? 0 : convolution_result;
-
-}
-
-
-
-// convolution layer
-//PPMImage *img[] convolution_layer(PPMImage *img, int channel_depth, int stride, int kernel_size, int output_size, double weights[]) { 
-
-  // Variables (lembrar de dar Free depois) 
-  //PPMImage *imgs[] = (PPMImage *)malloc(sizeof(PPMImage) * output_size);
-  //int i,j;
-
-  //// check if img exisits
-  //if(img){
-
-  //  for(j=0; j < channel_depth; j++){
-
-  //    PPMImage *feature_map_img;
-  //    
-  //    //iterates over each image pixel
-  //    for(i=0;i<img->x*img->y;i++){
-  //          
-  //         // calls convolution for each pixel (channels are not colors anymore)
-  //         feature_map_img->data[i].red = convolution(img, kernel_size, i, weights);
-  //    }
-  //
-  //    // here feature_map is ready
-  //    imgs[j] = feature_map_img;
-  //  } 
-  //}
-
-  
-//}  
 
 
