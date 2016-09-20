@@ -221,8 +221,10 @@ void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, in
 	PPMImage *sampleImage = inputImage[0];
 	int convDimension = (sampleImage->x-kernelSize+2*paddingSize)/stride+1;
 
+  
 	//allocate memory for the output convoluted image
 	convolutedImage->data = (PPMPixel*)malloc(convDimension * convDimension * sizeof(PPMPixel));
+
 	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
 
 	//iterate over each image pixel
@@ -233,9 +235,10 @@ void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, in
 
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
+    printf("Teste...%d\n", (sampleImage->x * sampleImage->y)-paddingOffset);  
 		//varre só nos pixels e desconsidera os 0s do padding
-		for(i=paddingOffset;i<(sampleImage->x*sampleImage->y)-paddingOffset;i = i+stride){
-
+		for(i=paddingOffset;i<(sampleImage->x * sampleImage->y)-paddingOffset;i = i+stride){
+      //printf("parem em ...%d\n", i);  
 			//varre os diferentes feature maps
 			for (z=0;z<depth;z++) {
 
@@ -262,7 +265,8 @@ void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, in
 
 		}
 
-	return convolutedImage;
+    printf("Sai do for de I...%d\n",10);  
+ 
 }
 
 
@@ -318,12 +322,12 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 
 
 // Generate all featuremaps for the layer
-PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumer){
+PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber){
     
-    PPMImage *featuremaps = malloc(outputNumer * sizeof(PPMImage));
+    PPMImage *featuremaps = malloc(outputNumber * sizeof(PPMImage));
 
     //Generate all featuremaps 
-    for(int i = 0; i < outputNumer; i++){
+    for(int i = 0; i < outputNumber; i++){
 
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i]);

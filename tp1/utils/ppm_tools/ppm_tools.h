@@ -40,7 +40,11 @@ void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, in
 
 
 //generate all featuremaps for layer
-PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumer); 
+PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber); 
+
+
+//fully connected layer
+double *fullyConnectedLayer(PPMImage *inputImage[], double *weights, int outputNumber);
 
 
 #endif // _ppm_tools_h

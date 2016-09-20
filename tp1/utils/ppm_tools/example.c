@@ -6,7 +6,7 @@
 #define KGRN  "\x1B[32m"
 
 //  'hello world' program, using ppm_tools
-void main(){ 
+int main(){ 
 
     PPMImage *image;
 
@@ -40,17 +40,27 @@ void main(){
 
 	  //vetor de pesos de média considerando 3 dimensões de entrada
     //double weightVectorMedia[27] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11};
-    double weightVectorMedia[54] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    //double weightVectorMedia[54] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+    double weightVectorMedia[147];
+    int i;
+    for (i  = 0 ; i < 147; i++){
 
-    //PPMImage *convolutedImage = convoluteKernel(imgs, weightVectorMedia, 3, 1, 1, 3, 64);
-    PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 3, 1, 1, 3, 2);
-    writePPM("fig_example_convoluted0.ppm",&convolutedImage[0]);
-    writePPM("fig_example_convoluted1.ppm",&convolutedImage[1]);
+      weightVectorMedia[i] = 1.0/49.0;
+    }  
+
+    //PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 7, 1, 0, 3, 1);
+
+    PPMImage *img = malloc(sizeof(PPMImage));
+    convoluteKernel(imgs, weightVectorMedia, 7, 1, 1, 3, img);
+    //PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 3, 1, 1, 3, 2);
+    writePPM("fig_example_convoluted2.ppm",img);
+    //writePPM("fig_example_convoluted1.ppm",&convolutedImage[1]);
 
 
     // just a pause step, telling the the job is done 
     printf("%sJob done, press any key to continue ...", KGRN);
     getchar();
 
+    return 0;
 }
 
