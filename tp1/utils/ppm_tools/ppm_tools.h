@@ -36,7 +36,7 @@ PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
 unsigned char max(unsigned char poolRegion[], int kernelSize);
 
 //function to compute the convolution of a kernel over the image
-void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage);
+void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage, int initialOffset);
 
 
 //generate all featuremaps for layer
@@ -44,7 +44,7 @@ PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSi
 
 
 //fully connected layer
-double *fullyConnectedLayer(PPMImage *inputImage[], double *weights, int outputNumber);
+PPMImage *fullyConnectedLayer(PPMImage *inputImage[], double *weights, int depth, int outputNumber);
 
 
 #endif // _ppm_tools_h

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "ppm_tools.h"
+#include "../utils/ppm_tools/ppm_tools.h"
 
 //defining green color for unix terminal
 #define KGRN  "\x1B[32m"
@@ -11,7 +11,7 @@ int main(){
     PPMImage *image;
 
     // read the ppm image into our C structure for ppm images
-    image = readPPM("fig_example_square.ppm");
+    image = readPPM("images/fig_example_square.ppm");
 
     // Apply an example that changes its colors
     //changeColorPPM(image);
@@ -41,22 +41,54 @@ int main(){
 	  //vetor de pesos de média considerando 3 dimensões de entrada
     //double weightVectorMedia[27] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11};
     //double weightVectorMedia[54] = {0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-    double weightVectorMedia[147];
+    //double weightVectorMedia[147];
+    //int i;
+    //for (i  = 0 ; i < 147; i++){
+
+    //  weightVectorMedia[i] = 1.0/49.0;
+    //}  
+
+    ////PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 7, 1, 0, 3, 1);
+    //PPMImage *img = malloc(sizeof(PPMImage));
+    //convoluteKernel(imgs, weightVectorMedia, 7, 1, 3, 3, img);
+    ////PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 3, 1, 1, 3, 2);
+    //writePPM("fig_example_convoluted2.ppm",img);
+    ////writePPM("fig_example_convoluted1.ppm",&convolutedImage[1]);
+
+
+   /*  TESTE CONVOLUTION LAYER */
+   // double weightVectorMedia[18];
+   // int i;
+   // for (i  = 0 ; i < 9; i++){
+   //   weightVectorMedia[i] = 1.0/9.0;
+   // }
+   // for (i  = 9 ; i < 18; i++){
+   //   if(i != 13){ 
+   //     weightVectorMedia[i] = 1.0;
+   //   }else{
+   //     weightVectorMedia[i] = -7;
+   //   }  
+   // }
+  
+   // PPMImage *featuremaps;  
+   // featuremaps = convolutionLayer(imgs, weightVectorMedia , 3, 1, 1, 1, 2);
+   // writePPM("fig_example_changed1.ppm",&featuremaps[0]);
+   // writePPM("fig_example_changed2.ppm",&featuremaps[1]);
+
+
+    /* Teste fully connected  */
+     double weightVectorMedia[301056];
     int i;
-    for (i  = 0 ; i < 147; i++){
+    for (i  = 0 ; i < 301056 ; i++){
+      weightVectorMedia[i] = 1.0/50176.0;
+    }
+  
+    PPMImage *featuremaps;  
+    featuremaps = fullyConnectedLayer(imgs, weightVectorMedia,3,2);
+    writePPM("fig_example_changed1.ppm",&featuremaps[0]);
+    writePPM("fig_example_changed2.ppm",&featuremaps[1]);
 
-      weightVectorMedia[i] = 1.0/49.0;
-    }  
-
-    //PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 7, 1, 0, 3, 1);
-
-    PPMImage *img = malloc(sizeof(PPMImage));
-    convoluteKernel(imgs, weightVectorMedia, 7, 1, 1, 3, img);
-    //PPMImage *convolutedImage = convolutionLayer(imgs, weightVectorMedia, 3, 1, 1, 3, 2);
-    writePPM("fig_example_convoluted2.ppm",img);
-    //writePPM("fig_example_convoluted1.ppm",&convolutedImage[1]);
-
-
+  
     // just a pause step, telling the the job is done 
     printf("%sJob done, press any key to continue ...", KGRN);
     getchar();
