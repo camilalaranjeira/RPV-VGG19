@@ -224,50 +224,41 @@ void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, in
   
 	//allocate memory for the output convoluted image
 	convolutedImage->data = (PPMPixel*)malloc(convDimension * convDimension * sizeof(PPMPixel));
-
 	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
 
 	//iterate over each image pixel
-	int i,j,z;
+	int i,j,z,k;
 	int weightOffset = kernelSize*kernelSize;
-	int stepOffset = weightOffset/2;
-
-
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
-    printf("Teste...%d\n", (sampleImage->x * sampleImage->y)-paddingOffset);  
-		//varre só nos pixels e desconsidera os 0s do padding
+    	//varre só nos pixels e desconsidera os 0s do padding
 		for(i=paddingOffset;i<(sampleImage->x * sampleImage->y)-paddingOffset;i = i+stride){
-      //printf("parem em ...%d\n", i);  
+
 			//varre os diferentes feature maps
 			for (z=0;z<depth;z++) {
 
 				int weightIndex = 0;
-				int line = 0;
 				double pixValue = 0;
 
-				for (j=-1*stepOffset;j<=stepOffset;j++) {
-					pixValue += inputImage[z]->data[line*sampleImage->x+i+j].red*weights[z*weightOffset+weightIndex];
-
-					weightIndex++;
-					if ((j+1)%(kernelSize)==0) { //tem que deslocar esse índice pra acessar a posição certa (linha) dos dados da imagem
-						line++;
+				for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
+					for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
+						pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].red*weights[z*weightOffset+weightIndex];
+						weightIndex++;
 					}
-
 				}
-				convolutedImage->data[i-paddingOffset].red = pixValue;
 
+				convolutedImage->data[i-paddingOffset].red = pixValue;
 				if (convolutedImage->data[i-paddingOffset].red<0) {
 					convolutedImage->data[i-paddingOffset].red = 0; //reLu
 				}
+
 			}
 
 
 		}
 
-    printf("Sai do for de I...%d\n",10);  
- 
 }
+
 
 
 //function to split input image into 3 separate channels (feature maps)
