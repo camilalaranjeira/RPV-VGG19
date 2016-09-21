@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../utils/vgg19/vgg19.h"
 #include "../utils/ppm_tools/ppm_tools.h"
 
 //defining green color for unix terminal
@@ -35,7 +36,7 @@ int main(){
 
     //teste da convolução com kernel de média (blur)
     //
-    PPMImage *imgs[3];
+    FeatureMap *imgs[3];
     separateImageChannel(image,imgs);
 
 	  //vetor de pesos de média considerando 3 dimensões de entrada
@@ -57,36 +58,36 @@ int main(){
 
 
    /*  TESTE CONVOLUTION LAYER */
-   // double weightVectorMedia[18];
-   // int i;
-   // for (i  = 0 ; i < 9; i++){
-   //   weightVectorMedia[i] = 1.0/9.0;
-   // }
-   // for (i  = 9 ; i < 18; i++){
-   //   if(i != 13){ 
-   //     weightVectorMedia[i] = 1.0;
-   //   }else{
-   //     weightVectorMedia[i] = -7;
-   //   }  
-   // }
+   double weightVectorMedia[18];
+    int i;
+    for (i  = 0 ; i < 9; i++){
+      weightVectorMedia[i] = 1.0/9.0;
+    }
+    for (i  = 9 ; i < 18; i++){
+      if(i != 13){ 
+        weightVectorMedia[i] = -1.0;
+      }else{
+        weightVectorMedia[i] = 8;
+      }  
+    }
   
-   // PPMImage *featuremaps;  
-   // featuremaps = convolutionLayer(imgs, weightVectorMedia , 3, 1, 1, 1, 2);
-   // writePPM("fig_example_changed1.ppm",&featuremaps[0]);
-   // writePPM("fig_example_changed2.ppm",&featuremaps[1]);
+    FeatureMap *featuremaps;  
+    featuremaps = convolutionLayer(imgs, weightVectorMedia , 3, 1, 1, 1, 2);
+    writePPMFromFeatureMap("fig_example_changed1.ppm",&featuremaps[0]);
+    writePPMFromFeatureMap("fig_example_changed2.ppm",&featuremaps[1]);
 
 
     /* Teste fully connected  */
-     double weightVectorMedia[301056];
-    int i;
-    for (i  = 0 ; i < 301056 ; i++){
-      weightVectorMedia[i] = 1.0/50176.0;
-    }
+    //double weightVectorMedia[301056];
+    //int i;
+    //for (i  = 0 ; i < 301056 ; i++){
+    //  weightVectorMedia[i] = 1.0/50176.0;
+    //}
   
-    PPMImage *featuremaps;  
-    featuremaps = fullyConnectedLayer(imgs, weightVectorMedia,3,2);
-    writePPM("fig_example_changed1.ppm",&featuremaps[0]);
-    writePPM("fig_example_changed2.ppm",&featuremaps[1]);
+    //FeatureMap *featuremaps;  
+    //featuremaps = fullyConnectedLayer(imgs, weightVectorMedia,3,2);
+    //writePPM("fig_example_changed1.ppm",&featuremaps[0]);
+    //writePPM("fig_example_changed2.ppm",&featuremaps[1]);
 
   
     // just a pause step, telling the the job is done 

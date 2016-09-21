@@ -1,6 +1,7 @@
 // Template file for functions defined in ppm_tools.c
-#ifndef _ppm_tools_h
+#ifndef _ppm_tools_h 
 #define _ppm_tools_h
+#include "../vgg19/vgg19.h"
 
 // Structure defined to represent a ppm image
 typedef struct {
@@ -23,28 +24,11 @@ PPMImage *readPPM(const char *filename);
 // Function that receives a C structured  PPMImage and write it as a true ppm image in the path "filename" given 
 void writePPM(const char *filename, PPMImage *img);
 
+// Function that receives a C structured  FeatureMap and write it as a true ppm image in the path "filename" given 
+void writePPMFromFeatureMap(const char *filename, FeatureMap *img);
+
 // Function to split an input image into three 1-channel feature maps. To be used on the first layer
-void separateImageChannel(PPMImage *img, PPMImage *imgs[]);
-
-// Sample function that changes the RGB of each pixel of the C structured ppm image
-void changeColorPPM(PPMImage *img);
-
-//max pooling function
-PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride);
-
-//function to compute the max of an array
-unsigned char max(unsigned char poolRegion[], int kernelSize);
-
-//function to compute the convolution of a kernel over the image
-void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage, int initialOffset);
-
-
-//generate all featuremaps for layer
-PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber); 
-
-
-//fully connected layer
-PPMImage *fullyConnectedLayer(PPMImage *inputImage[], double *weights, int depth, int outputNumber);
+void separateImageChannel(PPMImage *img, FeatureMap *imgs[]);
 
 
 #endif // _ppm_tools_h

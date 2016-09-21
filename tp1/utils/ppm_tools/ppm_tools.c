@@ -126,144 +126,58 @@ void writePPM(const char *filename, PPMImage *img)
 }
 
 
-// Naive function just to prove that the pixels could be changed and reorganized in ppm format
-// it takes a C structured ppm image and iterate over each pixel and changes its RGB info.
-void changeColorPPM(PPMImage *img)
+// Function that receives a C structured  FeatureMap and write it as a true ppm image in the path "filename" given 
+void writePPMFromFeatureMap(const char *filename, FeatureMap *img)
 {
-    // variable
-    int i;
 
-    // check if img existsz
-    if(img){
+    // Open the file that will hold the ppm image
+    FILE *fp;
+    fp = fopen(filename, "wb");
 
-         //iterates over each image pixel
-         for(i=0;i<img->x*img->y;i++){
-              img->data[i].red=RGB_COMPONENT_COLOR-img->data[i].red;
-              img->data[i].green=RGB_COMPONENT_COLOR-img->data[i].green;
-              img->data[i].blue=RGB_COMPONENT_COLOR-img->data[i].blue;
-         }
+    //instance a PPMPixel
+    PPMPixel *data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+
+    // check for opening failures
+    if (!fp) {
+         fprintf(stderr, "%sUnable to open file '%s'\n", KRED, filename);
+         exit(1);
     }
+
+    //write the header file
+    //
+    //image format, must be the ppm image's magic number
+    fprintf(fp, "P6\n");
+
+
+    //write image size
+    fprintf(fp, "%d %d\n",img->x,img->y);
+
+    // rgb component depth, which was defined as constant in ppm_tools.h
+    fprintf(fp, "%d\n",RGB_COMPONENT_COLOR);
+
+    //convert FeatureMapPixel to PPMPixel
+    int i;
+    for ( i=0 ; i < img->x * img->y; i++){
+      data[i].red = img->data[i].channel1;
+      data[i].green = 0;
+      data[i].blue = 0;
+    }  
+
+    // write the pixel data
+    fwrite(data, 3 * img->x, img->y, fp);
+    
+    free(data);
+    //close file
+    fclose(fp);
 }
 
 
-unsigned char max(unsigned char poolRegion[], int kernelSize) {
-
-	int i;
-	unsigned char maxValue = poolRegion[0];
-	for (i=1;i<kernelSize*kernelSize;i++) {
-		if (poolRegion[i]>maxValue) {
-			maxValue = poolRegion[i];
-		}
-	}
-
-	return maxValue;
-}
-
-
-//function to perform max pooling on an array
-PPMImage *maxPool(PPMImage *featureMap, int kernelSize, int stride) {
-
-	//instantiate pooled image
-	PPMImage *pooledImage = (PPMImage *)malloc(sizeof(PPMImage));
-
-
-	// check if img exists
-	if(featureMap){
-
-		//compute size of pooled image (feature map)
-		int pooledDimension = (featureMap->x-kernelSize)/stride+1;
-
-
-		//allocate memory for the output pooled image
-		pooledImage->data = (PPMPixel*)malloc(pooledDimension * pooledDimension * sizeof(PPMPixel));
-		pooledImage->x = pooledDimension; pooledImage->y = pooledDimension;
-
-
-		//iterate over each image pixel
-		//remember that each feature map contains data only on the red channel
-		int i,j,k;
-		int dataIndex = 0;
-		unsigned char poolRegion[kernelSize*kernelSize];
-
-		for(i=0;i<(featureMap->x*featureMap->y);i = i+stride){
-
-			//catch pixels on the delimited region and put them into the poolregion
-			for (j=0;j<kernelSize;j++) {
-				for (k=0;k<kernelSize;k++) {
-					poolRegion[j*kernelSize+k] = featureMap->data[i+k+j*featureMap->x].red;
-				}
-			}
-
-
-			//perform the max pooling
-			pooledImage->data[dataIndex].red = max(poolRegion, kernelSize);
-			dataIndex++;
-
-			//performs a line offset
-			if (i!=0 && i%(featureMap->x-stride)==0) {
-				i = i+(kernelSize-1)*(featureMap->x);
-			}
-
-		}
-
-	}
-	return pooledImage;
-}
-
-//function that convolutes a kernel over the image
-void convoluteKernel(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, PPMImage *convolutedImage, int initialOffset) {
-
-	//instantiate a convoluted image
-	//PPMImage *convolutedImage = (PPMImage *)malloc(sizeof(PPMImage));
-
-	//compute size of convoluted image (feature map)
-	//x and y dimensions are equal
-	PPMImage *sampleImage = inputImage[0];
-	int convDimension = (sampleImage->x-kernelSize+2*paddingSize)/stride+1;
-
-  
-	//allocate memory for the output convoluted image
-	convolutedImage->data = (PPMPixel*)malloc(convDimension * convDimension * sizeof(PPMPixel));
-	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
-
-	//iterate over each image pixel
-	int i,j,z,k;
-	int weightOffset = kernelSize*kernelSize;
-	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
-
-    	//varre só nos pixels e desconsidera os 0s do padding
-		for(i=paddingOffset+initialOffset;i<(sampleImage->x * sampleImage->y)-(paddingOffset+initialOffset);i = i+stride){
-
-			//varre os diferentes feature maps
-			for (z=0;z<depth;z++) {
-
-				int weightIndex = 0;
-				double pixValue = 0;
-
-				for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
-					for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
-						pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].red*weights[z*weightOffset+weightIndex];
-						weightIndex++;
-					}
-				}
-
-				convolutedImage->data[i-paddingOffset].red = pixValue;
-				if (convolutedImage->data[i-paddingOffset].red<0) {
-					convolutedImage->data[i-paddingOffset].red = 0; //reLu
-				}
-
-			}
-
-
-		}
-
-}
 
 
 
 //function to split input image into 3 separate channels (feature maps)
 //each resultant feature map store values into the red channel (0s into other channels)
-void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
+void separateImageChannel(PPMImage *img, FeatureMap *imgs[]) {
 
 	int i;
 
@@ -271,14 +185,14 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 	  if(img){
 
 		  //generate one feature map for each image channel
-	      PPMImage *feature_map_img_red = (PPMImage *)malloc(sizeof(PPMImage));
-	      PPMImage *feature_map_img_green = (PPMImage *)malloc(sizeof(PPMImage));
-	      PPMImage *feature_map_img_blue = (PPMImage *)malloc(sizeof(PPMImage));
+	      FeatureMap *feature_map_img_red = (FeatureMap *)malloc(sizeof(FeatureMap));
+	      FeatureMap *feature_map_img_green = (FeatureMap *)malloc(sizeof(FeatureMap));
+	      FeatureMap *feature_map_img_blue = (FeatureMap *)malloc(sizeof(FeatureMap));
 
 	      //allocate memory to store the image data
-	      feature_map_img_red->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
-	      feature_map_img_green->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
-	      feature_map_img_blue->data = (PPMPixel*)malloc(img->x * img->y * sizeof(PPMPixel));
+	      feature_map_img_red->data = (FeatureMapPixel*)malloc(img->x * img->y * sizeof(FeatureMapPixel));
+	      feature_map_img_green->data = (FeatureMapPixel*)malloc(img->x * img->y * sizeof(FeatureMapPixel));
+	      feature_map_img_blue->data = (FeatureMapPixel*)malloc(img->x * img->y * sizeof(FeatureMapPixel));
 
 	      //set image size
 	      feature_map_img_red->x = img->x;feature_map_img_red->y = img->y;
@@ -288,18 +202,9 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 
 	      //iterates over each image pixel
 	      for(i=0;i<img->x*img->y;i++){
-	    	  feature_map_img_red->data[i].red = img->data[i].red;
-	    	  feature_map_img_green->data[i].red = img->data[i].green;
-	    	  feature_map_img_blue->data[i].red = img->data[i].blue;
-
-	    	  //insert 0s into other channels
-	    	  feature_map_img_red->data[i].green = 0;
-	          feature_map_img_green->data[i].green = 0;
-	    	  feature_map_img_blue->data[i].green = 0;
-
-	    	  feature_map_img_red->data[i].blue = 0;
-	    	  feature_map_img_green->data[i].blue = 0;
-	    	  feature_map_img_blue->data[i].blue = 0;
+	    	  feature_map_img_red->data[i].channel1 = img->data[i].red;
+	    	  feature_map_img_green->data[i].channel1 = img->data[i].green;
+	    	  feature_map_img_blue->data[i].channel1 = img->data[i].blue;
 
 	      }
 
@@ -309,47 +214,4 @@ void separateImageChannel(PPMImage *img, PPMImage *imgs[]) {
 	      imgs[2] = feature_map_img_blue;
 	  }
 }
-
-
-
-// Generate all featuremaps for the layer
-PPMImage *convolutionLayer(PPMImage *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber){
-    
-    PPMImage *featuremaps = malloc(outputNumber * sizeof(PPMImage));
-
-    //Generate all featuremaps 
-    for(int i = 0; i < outputNumber; i++){
-
-      double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
-      convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0);
-        
-    }  
-    
-    return featuremaps;
-}  
-
-
-// Fully connected layer
-PPMImage *fullyConnectedLayer(PPMImage *inputImage[], double *weights, int depth, int outputNumber){
-
-    PPMImage *featuremaps = malloc(outputNumber * sizeof(PPMImage));
-
-    // Get the kernel size based on the first image from the input
-    int kernelSize = inputImage[0]->x;
-
-    //Generate all featuremaps 
-    for(int i = 0; i < outputNumber; i++){
-
-      double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
-      convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2);
-        
-    }  
-    
-    return featuremaps;
-
-
-}  
-
-
-
 
