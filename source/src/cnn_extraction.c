@@ -5,7 +5,8 @@
 #include "../include/cnn_extraction.h"
 
 #define LAYERS 19
-#define PATH "../vgg19_weights.txt"
+// File must be in the root directory (e.g. source)
+#define PATH "vgg19_weights.txt"
 
 /* Function adapted from http://ossguy.com/?p=284 */
 int
@@ -101,7 +102,8 @@ readFile()
     while(1)
     {
         /// read dynamically the CNN file into our C structure for layers
-        rc = dynamic_fgets(&line, &line_size, in_file);
+    	line_size = 128;
+    	rc = dynamic_fgets(&line, &line_size, in_file);
         if(MSG_OUTOFMEMORY == rc)
             return rc;
         else if(MSG_EOF == rc)

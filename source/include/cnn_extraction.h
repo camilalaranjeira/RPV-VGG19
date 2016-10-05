@@ -1,4 +1,4 @@
-/// Template file for functions defined in ppm_tools.c
+/// Template file for functions defined in cnn_extraction.c
 #ifndef _cnn_extraction_h
 #define _cnn_extraction_h
 
