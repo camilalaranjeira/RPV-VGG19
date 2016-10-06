@@ -70,7 +70,7 @@ FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 }
 
 //function that convolutes a kernel over the image
-void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset) {
+void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset, double bias) {
 
 	//instantiate a convoluted image
 	//FeatureMap *convolutedImage = (FeatureMap *)malloc(sizeof(FeatureMap));
@@ -90,38 +90,43 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 	int weightOffset = kernelSize*kernelSize;
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
-    	//varre só nos pixels e desconsidera os 0s do padding
-		for(i=paddingOffset+initialOffset;i<(sampleImage->x * sampleImage->y)-(paddingOffset+initialOffset);i = i+stride){
+  //varre só nos pixels e desconsidera os 0s do padding
+	for(i=paddingOffset+initialOffset;i<(sampleImage->x * sampleImage->y)-(paddingOffset+initialOffset);i = i+stride){
 
-			//varre os diferentes feature maps
-			for (z=0;z<depth;z++) {
+		//varre os diferentes feature maps
+		for (z=0;z<depth;z++) {
 
-				int weightIndex = 0;
-				double pixValue = 0;
+			int weightIndex = 0;
+      double pixValue = 0;
 
-				for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
-					for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
-						pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].channel1*weights[z*weightOffset+weightIndex];
-						weightIndex++;
-					}
+			for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
+				for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
+					pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].channel1*weights[z*weightOffset+weightIndex]; 
+					weightIndex++;
 				}
-
-				convolutedImage->data[i-paddingOffset].channel1 = pixValue;
-				if (convolutedImage->data[i-paddingOffset].channel1<0) {
-					convolutedImage->data[i-paddingOffset].channel1 = 0; //reLu
-				}
-
 			}
 
+      // Add the bias 
+      pixValue = pixValue + bias;
+    
+      //if (bias != 0) {  
+      //  printf("Pixel value: %f\n", pixValue);
+      //}     
+      
+		  convolutedImage->data[i-paddingOffset].channel1 = pixValue;
+		  if (convolutedImage->data[i-paddingOffset].channel1<0) {
+		  	convolutedImage->data[i-paddingOffset].channel1 = 0; //reLu
+		  }
 
-		}
+		}// end for Z
+  }// end for i
 
 }
 
 
 
 // Generate all featuremaps for the layer
-FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber){
+FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias){
     
     FeatureMap *featuremaps = malloc(outputNumber * sizeof(FeatureMap));
 
@@ -129,16 +134,17 @@ FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kern
     for(int i = 0; i < outputNumber; i++){
 
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
-      convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0);
+      convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0, bias[i]);
         
     }  
     
+      
     return featuremaps;
 }  
 
 
 // Fully connected layer
-FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber){
+FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber, double *bias){
 
     FeatureMap *featuremaps = malloc(outputNumber * sizeof(FeatureMap));
 
@@ -149,7 +155,7 @@ FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int d
     for(int i = 0; i < outputNumber; i++){
 
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
-      convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2);
+      convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
         
     }  
     

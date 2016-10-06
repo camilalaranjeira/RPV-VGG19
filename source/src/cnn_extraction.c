@@ -2,7 +2,8 @@
 #include "../include/cnn_extraction.h"
 
 #define LAYERS 19
-#define PATH "../vgg19_weights.txt"
+// File must be in the root directory (e.g. source)
+#define PATH "vgg19_weights.txt"
 
 void
 cnnParameters(FILE* file)
@@ -65,8 +66,23 @@ readFile()
         printf("File Unavailable.\n");
         exit(-1);
     }
+<<<<<<< HEAD
     /// read the CNN file and set the parameters for each layer
     cnnParameters(in_file);
+=======
+    while(1)
+    {
+        /// read dynamically the CNN file into our C structure for layers
+    	line_size = 128;
+    	rc = dynamic_fgets(&line, &line_size, in_file);
+        if(MSG_OUTOFMEMORY == rc)
+            return rc;
+        else if(MSG_EOF == rc)
+            break;
+        /// set the parameters for each layer of the CNN
+        cnnParameters(line, token, &it);
+    }
+>>>>>>> 7548dc9f47baecad015dee2edc4c0467d1129faf
     fclose(in_file);
     return 0;
 }

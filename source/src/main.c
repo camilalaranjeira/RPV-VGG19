@@ -9,7 +9,10 @@
 
 #define images_dir "../images/"
 
-void main(){
+int main(){
+
+	readFile();
+	return 0;
 
 	readFile();
 

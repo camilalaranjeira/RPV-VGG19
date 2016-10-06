@@ -24,13 +24,13 @@ FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 double max(double poolRegion[], int kernelSize);
 
 //function to compute the convolution of a kernel over the image
-void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset);
+void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset, double bias);
 
 //generate all featuremaps for layer
-FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber); 
+FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias); 
 
 //fully connected layer
-FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber);
+FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber, double *bias);
 
 
 #endif // _ppm_tools_h
