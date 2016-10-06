@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../utils/vgg19/vgg19.h"
-#include "../utils/ppm_tools/ppm_tools.h"
+#include "../../source/include/vgg19.h"
+#include "../../source/include/image.h"
 
 //defining green color for unix terminal
 #define KGRN  "\x1B[32m"
@@ -58,21 +58,59 @@ int main(){
 
 
    /*  TESTE CONVOLUTION LAYER */
+   //double weightVectorMedia[18];
+   // int i;
+   // for (i  = 0 ; i < 9; i++){
+   //   weightVectorMedia[i] = 1.0/9.0;
+   // }
+   // for (i  = 9 ; i < 18; i++){
+   //   if(i != 13){ 
+   //     weightVectorMedia[i] = -1.0;
+   //   }else{
+   //     weightVectorMedia[i] = 8;
+   //   }  
+   // }
+   
    double weightVectorMedia[18];
-    int i;
-    for (i  = 0 ; i < 9; i++){
-      weightVectorMedia[i] = 1.0/9.0;
-    }
-    for (i  = 9 ; i < 18; i++){
-      if(i != 13){ 
-        weightVectorMedia[i] = -1.0;
-      }else{
-        weightVectorMedia[i] = 8;
-      }  
-    }
-  
+   // int i;
+   // for (i  = 0 ; i < 9; i++){
+   //   weightVectorMedia[i] = 1.0/9.0;
+   // }
+   
+    weightVectorMedia[0] = 1;
+    weightVectorMedia[1] = 2;
+    weightVectorMedia[2] = 1;
+    weightVectorMedia[3] = 0;
+    weightVectorMedia[4] = 0;
+    weightVectorMedia[5] = 0;
+    weightVectorMedia[6] = -1;
+    weightVectorMedia[7] = -2;
+    weightVectorMedia[8] = -1;
+
+    // weightVectorMedia[9] = 1;
+    // weightVectorMedia[10] = 0;
+    // weightVectorMedia[11] = -1;
+    // weightVectorMedia[12] = 2;
+    // weightVectorMedia[13] = 0;
+    // weightVectorMedia[14] = -2;
+    // weightVectorMedia[15] = 1;
+    // weightVectorMedia[16] = 0;
+    // weightVectorMedia[17] = -1;
+
+    weightVectorMedia[9] = -1;
+    weightVectorMedia[10] = -1;
+    weightVectorMedia[11] = -1;
+    weightVectorMedia[12] = -1;
+    weightVectorMedia[13] = 8;
+    weightVectorMedia[14] = -1;
+    weightVectorMedia[15] = -1;
+    weightVectorMedia[16] = -1;
+    weightVectorMedia[17] = -1;
+
+    double bias[2] = {0,255};
+
     FeatureMap *featuremaps;  
-    featuremaps = convolutionLayer(imgs, weightVectorMedia , 3, 1, 1, 1, 2);
+    featuremaps = convolutionLayer(imgs, weightVectorMedia , 3, 1, 1, 1, 2, bias);
     writePPMFromFeatureMap("fig_example_changed1.ppm",&featuremaps[0]);
     writePPMFromFeatureMap("fig_example_changed2.ppm",&featuremaps[1]);
 

@@ -11,6 +11,8 @@
 
 void main(){
 
+	readFile();
+
     PPMImage *image;
 
     // read the ppm image into our C structure for ppm images
