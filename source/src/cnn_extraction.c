@@ -13,7 +13,7 @@ cnnParameters(FILE* file)
     int it = 0;
     char str[150];
     int max_size;
-    while( (fscanf(file,"%s", &str)) != EOF )
+    while( (fscanf(file,"%s", str)) != EOF )
     {
         /// performs the extraction of the variables contained in the file for our structure of layers
         if( !strncmp(str, "conv", 4) || !strncmp(str, "fc", 2) )
@@ -66,23 +66,8 @@ readFile()
         printf("File Unavailable.\n");
         exit(-1);
     }
-<<<<<<< HEAD
     /// read the CNN file and set the parameters for each layer
     cnnParameters(in_file);
-=======
-    while(1)
-    {
-        /// read dynamically the CNN file into our C structure for layers
-    	line_size = 128;
-    	rc = dynamic_fgets(&line, &line_size, in_file);
-        if(MSG_OUTOFMEMORY == rc)
-            return rc;
-        else if(MSG_EOF == rc)
-            break;
-        /// set the parameters for each layer of the CNN
-        cnnParameters(line, token, &it);
-    }
->>>>>>> 7548dc9f47baecad015dee2edc4c0467d1129faf
     fclose(in_file);
     return 0;
 }

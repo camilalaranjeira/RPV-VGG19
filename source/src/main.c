@@ -12,6 +12,7 @@
 int main(){
 
 	readFile();
+  printf("ta ai: %.18lf \n", layer[18].weight[1000*4096 -1]);
 	return 0;
 
 	readFile();
