@@ -36,7 +36,7 @@ int main(){
     strcat(temp_string,picture_name);
     strcat(temp_string,".ppm");
     printf("%s\n",temp_string);
-    image = readPPM("/Users/rapha/Desktop/arceburgo.T64.B128.L4672.R4736.ppm");
+    image = readPPM("arceburgo.T64.B128.L4672.R4736.ppm");
     PPMImage *scale = Scale(image, (float)224/image->x, (float)224/image->y);
     //writePPM("fig_example_changed_scale.ppm",scale);
     PPMImage *zero = ZeroPad(scale, 0);
