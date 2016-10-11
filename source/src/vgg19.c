@@ -81,62 +81,46 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 	convolutedImage->data = (FeatureMapPixel*)malloc(convDimension * convDimension * sizeof(FeatureMapPixel));
 	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
 
-
-	//printf("convDimension %d\n", convDimension);
-	//printf("sample dimension %d\n", sampleImage->x);
-	//getchar();
-
-
 	//iterate over each image pixel
 	int i,j,z,k;
 	int lineCounter = 0;
 	int weightOffset = kernelSize*kernelSize;
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
-	//printf("paddingOffset %d\n", paddingOffset);
-	//getchar();
-
-
 	int checker = 0;
-    //varre só nos pixels e desconsidera os 0s do padding
+
+	//varre só nos pixels e desconsidera os 0s do padding
+	double pixValue;
 	for(i=paddingOffset+initialOffset;i<(sampleImage->x * sampleImage->y)-(paddingOffset+initialOffset);i = i+stride){
 
 		//varre os diferentes feature maps
+		pixValue = 0;
 		for (z=0;z<depth;z++) {
-
 			int weightIndex = 0;
-			double pixValue = 0;
-
 			for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
 				for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
 					pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].channel1*weights[z*weightOffset+weightIndex]; 
+					/*if (z==1) {
+						printf("%d\n", z*weightOffset+weightIndex);
+					}*/
 					weightIndex++;
 				}
 			}
 
-      // Add the bias 
-      pixValue = pixValue + bias;
-    
-      //if (bias != 0) {  
-      //  printf("Pixel value: %f\n", pixValue);
-      //}     
-      
+			// Add the bias
+		  pixValue += bias;
+
 		  convolutedImage->data[checker].channel1 = pixValue;
 		  if (convolutedImage->data[checker].channel1<0) {
 		  	convolutedImage->data[checker].channel1 = 0; //reLu
 		  }
-
 		}// end for Z
 
 		checker++;
-
 		if (checker%(convDimension)==0) {
 			i = i+2*paddingSize;
 			lineCounter++;
 		}
-
-
-
   }// end for i
 
 }
