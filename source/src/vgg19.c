@@ -70,34 +70,42 @@ FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 }
 
 //function that convolutes a kernel over the image
+//function that convolutes a kernel over the image
 void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset, double bias) {
 
-	//instantiate a convoluted image
-	//FeatureMap *convolutedImage = (FeatureMap *)malloc(sizeof(FeatureMap));
-
-	//compute size of convoluted image (feature map)
 	//x and y dimensions are equal
 	FeatureMap *sampleImage = inputImage[0];
-	int convDimension = (sampleImage->x-kernelSize+2*paddingSize)/stride+1;
+	int convDimension = (sampleImage->x-kernelSize/*+2*paddingSize*/)/stride+1;
 
-  
 	//allocate memory for the output convoluted image
 	convolutedImage->data = (FeatureMapPixel*)malloc(convDimension * convDimension * sizeof(FeatureMapPixel));
 	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
 
+
+	//printf("convDimension %d\n", convDimension);
+	//printf("sample dimension %d\n", sampleImage->x);
+	//getchar();
+
+
 	//iterate over each image pixel
 	int i,j,z,k;
+	int lineCounter = 0;
 	int weightOffset = kernelSize*kernelSize;
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
-  //varre só nos pixels e desconsidera os 0s do padding
+	//printf("paddingOffset %d\n", paddingOffset);
+	//getchar();
+
+
+	int checker = 0;
+    //varre só nos pixels e desconsidera os 0s do padding
 	for(i=paddingOffset+initialOffset;i<(sampleImage->x * sampleImage->y)-(paddingOffset+initialOffset);i = i+stride){
 
 		//varre os diferentes feature maps
 		for (z=0;z<depth;z++) {
 
 			int weightIndex = 0;
-      double pixValue = 0;
+			double pixValue = 0;
 
 			for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
 				for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
@@ -113,12 +121,22 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
       //  printf("Pixel value: %f\n", pixValue);
       //}     
       
-		  convolutedImage->data[i-paddingOffset].channel1 = pixValue;
-		  if (convolutedImage->data[i-paddingOffset].channel1<0) {
-		  	convolutedImage->data[i-paddingOffset].channel1 = 0; //reLu
+		  convolutedImage->data[checker].channel1 = pixValue;
+		  if (convolutedImage->data[checker].channel1<0) {
+		  	convolutedImage->data[checker].channel1 = 0; //reLu
 		  }
 
 		}// end for Z
+
+		checker++;
+
+		if (checker%(convDimension)==0) {
+			i = i+2*paddingSize;
+			lineCounter++;
+		}
+
+
+
   }// end for i
 
 }
