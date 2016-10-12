@@ -336,6 +336,36 @@ PPMImage *Scale(PPMImage *img, float Sx, float Sy)
   return(scl);
 }
 
+
+void *featureMapZeroPad(FeatureMap *fmap, int n) {
+
+		FeatureMap *zeroMap = (FeatureMap *)malloc(sizeof(FeatureMap));;
+
+		zeroMap->data = (FeatureMapPixel*)malloc((fmap->x+2*n) * (fmap->y+2*n) * sizeof(FeatureMapPixel));
+		zeroMap->x = fmap->x+2*n;
+		zeroMap->y = fmap->y+2*n;
+
+		int i,j,x,y;
+		j = 0;
+		for (y=0; y < zeroMap->y; y++) {
+		  for (x=0; x < zeroMap->x; x++) {
+			if(!(x < n || y < n || x > (fmap->x -1 + n) || y > (fmap->y - 1 + n))) {
+			  i = y * zeroMap->y + x;
+			  zeroMap->data[i] = fmap->data[j];
+			  j++;
+			}
+	       }
+		}
+
+		fmap->data = zeroMap->data;
+		fmap->x = zeroMap->x;
+		fmap->y = zeroMap->y;
+		free(zeroMap);
+
+}
+
+
+
 PPMImage *ZeroPad(PPMImage *img, int n)
 {
 	PPMImage *eimg; /* expanded image with zeros to the left and to the
