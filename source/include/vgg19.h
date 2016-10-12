@@ -17,6 +17,8 @@ typedef struct {
 #define RGB_COMPONENT_COLOR 255
 #define KRED  "\x1B[31m"
 
+void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride, int input_size);
+
 //max pooling function
 void maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 

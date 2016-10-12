@@ -19,6 +19,13 @@ double max(double poolRegion[], int kernelSize) {
 }
 
 
+void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_size) {
+	int k;
+	for (k=0;k<input_size;k++) {
+	    	maxPool(&featureMap[k], kernelSize, stride);
+	}
+}
+
 //function to perform max pooling on an array
 void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
