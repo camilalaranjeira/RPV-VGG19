@@ -18,7 +18,7 @@ typedef struct {
 #define KRED  "\x1B[31m"
 
 //max pooling function
-FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride);
+void maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 
 //function to compute the max of an array
 double max(double poolRegion[], int kernelSize);

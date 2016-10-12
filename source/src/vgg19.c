@@ -20,11 +20,10 @@ double max(double poolRegion[], int kernelSize) {
 
 
 //function to perform max pooling on an array
-FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
+void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
 	//instantiate pooled image
 	FeatureMap *pooledImage = (FeatureMap *)malloc(sizeof(FeatureMap));
-
 
 	// check if img exists
 	if(featureMap){
@@ -66,8 +65,13 @@ FeatureMap *maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 		}
 
 	}
-	return pooledImage;
+
+	featureMap->data = pooledImage->data;
+	featureMap->x = pooledImage->x;
+	featureMap->y = pooledImage->y;
+	free(pooledImage);
 }
+
 
 //function that convolutes a kernel over the image
 //function that convolutes a kernel over the image
