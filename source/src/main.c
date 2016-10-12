@@ -6,53 +6,45 @@
 
 //defining green color for unix terminal
 #define KGRN  "\x1B[32m"
+#define K_FOLD 5
+#define DATASET_DIR "../dataset"
 
-#define images_dir "../images/"
-#define images_dir_fold1 "../images/brazilian_coffee_scenes/fold1/"
-
-int main(){
-
-  char picture_name[150];
-  char temp_string[150];
-  FeatureMap *inputChannels[3];
-  FeatureMap *featureMaps;
-  PPMImage *image;
-
-  strcpy(temp_string,images_dir);
-  strcat(temp_string,"brazilian_coffee_scenes/fold1_nomes.txt");
-  FILE *picture_names  = fopen(temp_string, "r");
-
-  printf("Comecei a ler os pesos e a arquitetura\n");
-  // Read  VGG19 weights into layers struct
-	readFile();
-
-  printf("comecei a ler as imagens\n");
-  /// Read the name of the pictures used in fold1
-  while( (fscanf(picture_names,"%s", picture_name)) != EOF ){
-  
-    // read the ppm image into our C structure for ppm images
-    printf("%s\n",picture_name);
-    strcpy(temp_string,images_dir_fold1);
-    strcat(temp_string,picture_name);
-    strcat(temp_string,".ppm");
-    printf("%s\n",temp_string);
-    image = readPPM("arceburgo.T64.B128.L4672.R4736.ppm");
-    PPMImage *scale = Scale(image, (float)224/image->x, (float)224/image->y);
-    //writePPM("fig_example_changed_scale.ppm",scale);
-    PPMImage *zero = ZeroPad(scale, 0);
-    writePPM("fig_example_changed_scale.ppm",zero);
-
-    // First convolution layer
-    separateImageChannel(zero, inputChannels);
-    featureMaps = convolutionLayer(inputChannels,layer[0].weight,layer[0].kH,1,1,layer[0].input_size, layer[0].output_size, layer[0].bias);
-    //FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias); 
-    writePPMFromFeatureMap("deep.ppm",&featureMaps[0]);
-    
-    
-    break;
-  }  
-
-	return 0;
-
-
+int main()
+{
+    /// variables
+    int it;
+    char image_path[150];
+    char dataset_dir[150];
+    char picture_name[150];
+    char feature_path[150];
+    double featureVector[4096];
+    /// reads the parameters of VGG 19
+    readFile();
+    /// reads iteratively all the images in the dataset
+    for(it = 1; it <= K_FOLD; it++)
+    {
+        sprintf(dataset_dir, "%s/coffee/images/fold%d.txt", DATASET_DIR, it);
+        FILE* picture_file = fopen(dataset_dir, "r");
+        while( (fscanf(picture_file, "%s", picture_name)) != EOF )
+        {
+            if(!strncmp(picture_name, "coffee", 6))
+            {
+                memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
+            }
+            else
+            {
+                memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
+            }
+            sprintf(image_path, "%s/coffee/images/fold%d/%s.ppm",DATASET_DIR, it, picture_name);
+            /// TODO create the forward method that will receive the path to each image in dataset and return a corresponding feature vector
+            //featureVector = forward(image_path);
+            /// saves the features vector in each specific folder
+            sprintf(feature_path, "%s/coffee/features/fold%d/features.txt", DATASET_DIR, it);
+            FILE* feature_file = fopen(feature_path, "w");
+            //fwrite(featureVector, sizeof(double), 4096, feature_file);
+            fclose(feature_file);
+        }
+        fclose(picture_file);
+    }
+    return 0;
 }
