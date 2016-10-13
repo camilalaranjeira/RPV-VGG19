@@ -148,12 +148,14 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 
 			// Add the bias
 		  pixValue += bias;
-		  convolutedImage->data[checker].channel1 = pixValue;
-		  if (convolutedImage->data[checker].channel1<0) {
-		  	convolutedImage->data[checker].channel1 = 0; //reLu
+		  if (pixValue<0) { //isso é a reLU
+			  pixValue = 0;
 		  }
-		  if (initialOffset!=0 && pixValue!=0)
-		  	  printf("pixValue: %g", pixValue);
+		  convolutedImage->data[checker].channel1 = pixValue;
+
+
+		  //if (initialOffset!=0 && pixValue!=0)
+		  //	  printf("pixValue: %g\n", pixValue);
 		}// end for Z
 
 		checker++;
