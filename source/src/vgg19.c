@@ -145,27 +145,27 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 					weightIndex++;
 				}
 			}
-
-			// Add the bias
-		  pixValue += bias;
-		  if (pixValue<0) { //isso é a reLU
-			  pixValue = 0;
-		  }
-		  convolutedImage->data[checker].channel1 = pixValue;
-
-
-		  //if (initialOffset!=0 && pixValue!=0)
-		  //	  printf("pixValue: %g\n", pixValue);
 		}// end for Z
+		pixValue += bias;
+		if (pixValue<0) { //isso é a reLU
+			pixValue = 0;
+		}
+		//printf("pixValue: %d\n", i);
+		convolutedImage->data[checker].channel1 = pixValue;
 
 		checker++;
 		if (checker%(convDimension)==0) {
-			i = i+2*paddingSize;
+			if (stride==1)
+				i = i+2*paddingSize;
+			else {
+				i = i+paddingSize;
+				i = i+(stride-1)*sampleImage->x;
+			}
 			lineCounter++;
 		}
   }// end for i
-
 }
+
 
 
 
