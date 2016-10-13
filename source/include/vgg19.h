@@ -17,19 +17,22 @@ typedef struct {
 #define RGB_COMPONENT_COLOR 255
 #define KRED  "\x1B[31m"
 
-void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride, int input_size);
-
 //max pooling function
 void maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 
+void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride, int input_size);
+
+FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias);
+FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias);
 //function to compute the max of an array
+
 double max(double poolRegion[], int kernelSize);
 
 //function to compute the convolution of a kernel over the image
 void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset, double bias);
 
 //generate all featuremaps for layer
-FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias); 
+FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias);
 
 //fully connected layer
 FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber, double *bias);

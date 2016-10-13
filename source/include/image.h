@@ -47,6 +47,7 @@ PPMImage *CreateImage(int ncols, int nrows);
 bool    ValidPixel(PPMImage *img, int x, int y);
 PPMImage *Scale(PPMImage *img, float Sx, float Sy);
 PPMImage  *ZeroPad(PPMImage *img, int n);
-void  *featureMapZeroPad(FeatureMap *img, int n);
+void featureMapZeroPad(FeatureMap *img, int n);
+
 
 #endif /* INCLUDE_IMAGE_H_ */

@@ -336,8 +336,7 @@ PPMImage *Scale(PPMImage *img, float Sx, float Sy)
   return(scl);
 }
 
-
-void *featureMapZeroPad(FeatureMap *fmap, int n) {
+void featureMapZeroPad(FeatureMap *fmap, int n) {
 
 		FeatureMap *zeroMap = (FeatureMap *)malloc(sizeof(FeatureMap));;
 
@@ -361,10 +360,7 @@ void *featureMapZeroPad(FeatureMap *fmap, int n) {
 		fmap->x = zeroMap->x;
 		fmap->y = zeroMap->y;
 		free(zeroMap);
-
 }
-
-
 
 PPMImage *ZeroPad(PPMImage *img, int n)
 {
@@ -388,3 +384,5 @@ PPMImage *ZeroPad(PPMImage *img, int n)
 	}
 	return(eimg);
 }
+
+

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../include/vgg19.h"
+#include "../include/image.h"
+
 
 // 
 double max(double poolRegion[], int kernelSize) {
@@ -18,13 +20,6 @@ double max(double poolRegion[], int kernelSize) {
 	return maxValue;
 }
 
-
-void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_size) {
-	int k;
-	for (k=0;k<input_size;k++) {
-	    	maxPool(&featureMap[k], kernelSize, stride);
-	}
-}
 
 //function to perform max pooling on an array
 void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
@@ -80,7 +75,43 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 }
 
 
-//function that convolutes a kernel over the image
+void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_size) {
+	int k;
+	for (k=0;k<input_size;k++) {
+	    	maxPool(&featureMap[k], kernelSize, stride);
+	}
+}
+
+FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias) {
+	int k=0;
+    for (k=0;k<depth;k++) {
+    	featureMapZeroPad(&featureMaps[k], 1);
+    }
+
+   //convertendo pra um ponteiro de ponteiro
+   FeatureMap *fMaps[depth];
+   for (k=0;k<depth;k++) {
+	   fMaps[k] = &featureMaps[k];
+   }
+   featureMaps = convolutionLayer(fMaps,weights,kernelSize,1,1,depth, outputNumber, bias);
+
+   return featureMaps;
+}
+
+FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias) {
+
+   //convertendo pra um ponteiro de ponteiro
+   int k=0;
+   FeatureMap *fMaps[depth];
+   for (k=0;k<depth;k++) {
+	   fMaps[k] = &featureMaps[k];
+   }
+   featureMaps = fullyConnectedLayer(fMaps, weights, depth, outputNumber, bias);
+
+   return featureMaps;
+}
+
+
 //function that convolutes a kernel over the image
 void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, FeatureMap *convolutedImage, int initialOffset, double bias) {
 
@@ -111,20 +142,18 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 			for (k=-1*kernelSize/2;k<=kernelSize/2;k++) {
 				for (j=-1*kernelSize/2;j<=kernelSize/2;j++) {
 					pixValue += inputImage[z]->data[(k)*inputImage[z]->x+i+j].channel1*weights[z*weightOffset+weightIndex]; 
-					/*if (z==1) {
-						printf("%d\n", z*weightOffset+weightIndex);
-					}*/
 					weightIndex++;
 				}
 			}
 
 			// Add the bias
 		  pixValue += bias;
-
 		  convolutedImage->data[checker].channel1 = pixValue;
 		  if (convolutedImage->data[checker].channel1<0) {
 		  	convolutedImage->data[checker].channel1 = 0; //reLu
 		  }
+		  if (initialOffset!=0 && pixValue!=0)
+		  	  printf("pixValue: %g", pixValue);
 		}// end for Z
 
 		checker++;
@@ -145,13 +174,9 @@ FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kern
 
     //Generate all featuremaps 
     for(int i = 0; i < outputNumber; i++){
-
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0, bias[i]);
-        
     }  
-    
-      
     return featuremaps;
 }  
 
@@ -166,18 +191,12 @@ FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int d
 
     //Generate all featuremaps 
     for(int i = 0; i < outputNumber; i++){
-
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
-        
     }  
     
     return featuremaps;
 
 
 }  
-
-
-
-
 
