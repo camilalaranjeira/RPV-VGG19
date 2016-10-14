@@ -125,8 +125,8 @@ int main() {
 
       i=0;
     	sprintf(dataset_dir, "../images/brazilian_coffee_scenes/fold%d.txt", it);
-      sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features.txt", it);
-      feature_file = fopen(feature_path, "a");
+      //sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features.txt", it);
+      //feature_file = fopen(feature_path, "a");
     	picture_file = fopen(dataset_dir, "r");
     	while( (fscanf(picture_file, "%s", picture_name)) != EOF ){
         	//printf("\nfileString: %s\n", picture_name);
@@ -146,21 +146,26 @@ int main() {
       }
       fclose(picture_file);
       //fprintf(feature_file, "\n");
-      fclose(feature_file);
 
-      #pragma omp parallel for private(i,j,featureVector,fmaps)
+      //#pragma omp parallel for private(i,j,featureVector,fmaps)
       for (i = 0; i < 601; i++){
         printf("%d Testando: %s\n", i, picture_names[i]);
         fmaps = forward(picture_names[i]);
         for (j = 0; j < numMaps; j++) {
         	FeatureMap *map = &fmaps[j];
+          
         	//printf("pixValue %g\n", map->data[0].channel1);
         	featureVector[j] = map->data[0].channel1;
         }
 
-        //for (fileIndex = 0; fileIndex< numMaps; fileIndex++) {
-        //	fprintf(feature_file, "%f ", featureVector[fileIndex]);
-        //}
+        sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features%d.txt", it,i);
+        feature_file = fopen(feature_path, "a");
+
+        for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
+          printf("numero %d: %f\n", fileIndex, featureVector[fileIndex]);
+        	fprintf(feature_file, "%f ", featureVector[fileIndex]);
+        }
+        fclose(feature_file);
 
       }  
     }
