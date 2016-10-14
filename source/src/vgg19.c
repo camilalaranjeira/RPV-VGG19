@@ -17,8 +17,6 @@ double max(double poolRegion[], int kernelSize) {
 			maxValue = poolRegion[i];
 		}
 	}
-	printf("\n\n");
-
 	return maxValue;
 }
 
@@ -87,18 +85,18 @@ void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_s
 
 FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias) {
 	int k=0;
-    for (k=0;k<depth;k++) {
-    	featureMapZeroPad(&featureMaps[k], 1);
-    }
+  for (k=0;k<depth;k++) {
+  	featureMapZeroPad(&featureMaps[k], 1);
+  }
 
-   //convertendo pra um ponteiro de ponteiro
-   FeatureMap *fMaps[depth];
-   for (k=0;k<depth;k++) {
-	   fMaps[k] = &featureMaps[k];
-   }
-   featureMaps = convolutionLayer(fMaps,weights,kernelSize,1,1,depth, outputNumber, bias);
+  //convertendo pra um ponteiro de ponteiro
+  FeatureMap *fMaps[depth];
+  for (k=0;k<depth;k++) {
+	  fMaps[k] = &featureMaps[k];
+  }
+  featureMaps = convolutionLayer(fMaps,weights,kernelSize,1,1,depth, outputNumber, bias);
 
-   return featureMaps;
+  return featureMaps;
 }
 
 FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias) {

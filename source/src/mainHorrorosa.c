@@ -21,11 +21,7 @@ FeatureMap *forward(char *filePath){
     PPMImage *image;
 
     // read the ppm image into our C structure for ppm images
-   image = readPPM(filePath);
-   //leitura do arquivo de pesos
-   //printf("Lendo o arquivo de pesos\n");
-   //readFile();
-   //printf("Leitura de pesos concluída\n");
+    image = readPPM(filePath);
 
     FeatureMap *imgs[3];
     PPMImage *scale = Scale(image, (float)224/image->x, (float)224/image->y);
@@ -100,13 +96,19 @@ FeatureMap *forward(char *filePath){
 int main() {
     /// variables
 
-	int it;
+	  int it;
+    int i,j;
+    int numMaps = 4096;
     char image_path[150];
     char dataset_dir[150];
     char picture_name[150];
     char feature_path[150];
     FeatureMap *fmaps;
     double featureVector[4096];
+    FILE* feature_file;
+    int fileIndex;
+    FILE* picture_file; 
+    char picture_names[610][150];
 
     /// reads the parameters of VGG 19
 
@@ -117,45 +119,53 @@ int main() {
     /// reads iteratively all the images in the coffee dataset
 
 
-    for(it = 1; it <= K_FOLD; it++)
+    //for(it = 1; it <= K_FOLD; it++)
+    for(it = 1; it <= 1; it++)
     {
-    	sprintf(dataset_dir, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d.txt", it);
 
-    	FILE* picture_file = fopen(dataset_dir, "r");
-    	while( (fscanf(picture_file, "%s", picture_name)) != EOF )
-        {
+      i=0;
+    	sprintf(dataset_dir, "../images/brazilian_coffee_scenes/fold%d.txt", it);
+      sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features.txt", it);
+      feature_file = fopen(feature_path, "a");
+    	picture_file = fopen(dataset_dir, "r");
+    	while( (fscanf(picture_file, "%s", picture_name)) != EOF ){
         	//printf("\nfileString: %s\n", picture_name);
         	if(!strncmp(picture_name, "coffee", 6))
             {
+                //picture_name = picture_name + 7;
                 memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
             }
             else
             {
                 memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
             }
-        	sprintf(image_path, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d/%s.ppm", it, picture_name);
-        	/// TODO create the forward method that will receive the path to each image in dataset and return a corresponding feature vector
-            fmaps = forward(image_path);
+        	 sprintf(image_path, "../images/brazilian_coffee_scenes/fold%d/%s.ppm", it, picture_name);
+           strcpy(picture_names[i],image_path);
+           i++;
 
-            int numMaps;
-            for (numMaps=0;numMaps<4096;numMaps++) {
-            	FeatureMap *map = &fmaps[numMaps];
-            	printf("pixValue %g\n", map->data[0].channel1);
-            	featureVector[numMaps] = map->data[0].channel1;
-            }
+      }
+      fclose(picture_file);
+      //fprintf(feature_file, "\n");
+      fclose(feature_file);
 
-            /// saves the features vector in each specific folder
-            sprintf(feature_path, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d/features.txt", it);
-            FILE* feature_file = fopen(feature_path, "a");
-            int fileIndex;
-            for (fileIndex=0;fileIndex<4096;fileIndex++) {
-            	fprintf(feature_file, "%f ", featureVector[fileIndex]);
-            }
-            fprintf(feature_file, "\n");
-            fclose(feature_file);
+      #pragma omp parallel for private(i,j,featureVector,fmaps)
+      for (i = 0; i < 601; i++){
+        printf("%d Testando: %s\n", i, picture_names[i]);
+        fmaps = forward(picture_names[i]);
+        for (j = 0; j < numMaps; j++) {
+        	FeatureMap *map = &fmaps[j];
+        	//printf("pixValue %g\n", map->data[0].channel1);
+        	featureVector[j] = map->data[0].channel1;
         }
-        fclose(picture_file);
+
+        //for (fileIndex = 0; fileIndex< numMaps; fileIndex++) {
+        //	fprintf(feature_file, "%f ", featureVector[fileIndex]);
+        //}
+
+      }  
     }
+
+
     /// reads iteratively all the images in the UCMerced dataset
     /*struct dirent *file;
     struct dirent *folder;
