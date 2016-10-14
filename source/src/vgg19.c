@@ -216,7 +216,8 @@ FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kern
     FeatureMap *featuremaps = malloc(outputNumber * sizeof(FeatureMap));
 
     //Generate all featuremaps 
-    for(int i = 0; i < outputNumber; i++){
+    int i;
+    for(i = 0; i < outputNumber; i++){
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0, bias[i]);
     }  
@@ -233,7 +234,8 @@ FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int d
     int kernelSize = inputImage[0]->x;
 
     //Generate all featuremaps 
-    for(int i = 0; i < outputNumber; i++){
+    int i;
+    for(i = 0; i < outputNumber; i++){
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       fullyConnectedKernel(inputImage,updated_weight,depth, &featuremaps[i],bias[i]);
       //convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
