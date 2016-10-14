@@ -22,6 +22,8 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 
 void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride, int input_size);
 
+void fullyConnectedKernel(FeatureMap *inputImage[], double *weights, int depth, FeatureMap *convolutedImage, double bias);
+
 FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias);
 FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias);
 //function to compute the max of an array

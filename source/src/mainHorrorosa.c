@@ -1,26 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <dirent.h>
+#include <sys/types.h>
 #include "../include/image.h"
 #include "../include/vgg19.h"
 #include "../include/cnn_extraction.h"
+#include <time.h>
+
+//defining green color for unix terminal
+#define KGRN  "\x1B[32m"
+#define K_FOLD 5
+#define DATASET_DIR "../dataset"
 
 //defining green color for unix terminal
 #define KGRN  "\x1B[32m"
 
-#define images_dir "../images/"
-#define images_dir_fold1 "../images/brazilian_coffee_scenes/fold1/"
 
-int main(){
+FeatureMap *forward(char *filePath){
 
     PPMImage *image;
 
     // read the ppm image into our C structure for ppm images
-   image = readPPM("/home/igor_pig/workspace/RPV-VGGLocal/source/src/arceburgo.T64.B128.L4672.R4736.ppm");
+   image = readPPM(filePath);
    //leitura do arquivo de pesos
-   printf("Lendo o arquivo de pesos\n");
-   readFile();
-   printf("Leitura de pesos concluída\n");
+   //printf("Lendo o arquivo de pesos\n");
+   //readFile();
+   //printf("Leitura de pesos concluída\n");
 
     FeatureMap *imgs[3];
     PPMImage *scale = Scale(image, (float)224/image->x, (float)224/image->y);
@@ -36,7 +41,6 @@ int main(){
     featureMaps = convolutionLayer(imgs,layer[0].weight,layer[0].kH,1,1,layer[0].input_size, layer[0].output_size, layer[0].bias);
     featureMaps = convolutionalLayer(featureMaps, layer[1].weight,layer[1].kH,1,1,layer[1].input_size, layer[1].output_size, layer[1].bias);
     poolingLayer(featureMaps, 2,2, layer[1].input_size);
-
 
     //#############Segundo Bloco##########///////////////////
     printf("Segundo bloco de camadas convolucionais\n");
@@ -73,25 +77,122 @@ int main(){
     featureMaps = fcLayer(featureMaps, layer[16].weight, 512, layer[16].output_size, layer[16].bias);
     featureMaps = fcLayer(featureMaps, layer[17].weight, 512, layer[17].output_size, layer[17].bias);
 
-
     //##########Computando tempo de execução########////////////////
     clock_t tempoFinal = clock();
     double tempoTotal = (double)(tempoFinal - tempoInicial) / CLOCKS_PER_SEC;
     printf("Tempo total de execução do sistema por imagem: %f\n", tempoTotal);
 
 
+    return featureMaps;
     //printing featureMaps
     /*int i;
     char index[50];
 
-    for (i=0;i<layer[17].output_size;i++) {
-    	sprintf(index, "%d", i);
+    for (i=0;i<layer[1].output_size;i++) {
+    	sprintf(index, "deep%d", i);
     	strcat(index,".ppm");
     	writePPMFromFeatureMap(index,&featureMaps[i]);
 	}
-	*/
-    getchar();
-	return 0;
+
+    getchar();*/
+}
+
+int main() {
+    /// variables
+
+	int it;
+    char image_path[150];
+    char dataset_dir[150];
+    char picture_name[150];
+    char feature_path[150];
+    FeatureMap *fmaps;
+    double featureVector[4096];
+
+    /// reads the parameters of VGG 19
 
 
+    printf("Lendo arquivo de pesos\n");
+    readFile();
+    printf("Terminada a leitura de pesos\n");
+    /// reads iteratively all the images in the coffee dataset
+
+
+    for(it = 1; it <= K_FOLD; it++)
+    {
+    	sprintf(dataset_dir, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d.txt", it);
+
+    	FILE* picture_file = fopen(dataset_dir, "r");
+    	while( (fscanf(picture_file, "%s", picture_name)) != EOF )
+        {
+        	//printf("\nfileString: %s\n", picture_name);
+        	if(!strncmp(picture_name, "coffee", 6))
+            {
+                memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
+            }
+            else
+            {
+                memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
+            }
+        	sprintf(image_path, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d/%s.ppm", it, picture_name);
+        	/// TODO create the forward method that will receive the path to each image in dataset and return a corresponding feature vector
+            fmaps = forward(image_path);
+
+            int numMaps;
+            for (numMaps=0;numMaps<4096;numMaps++) {
+            	FeatureMap *map = &fmaps[numMaps];
+            	printf("pixValue %g\n", map->data[0].channel1);
+            	featureVector[numMaps] = map->data[0].channel1;
+            }
+
+            /// saves the features vector in each specific folder
+            sprintf(feature_path, "/home/igor_pig/workspace/RPV-VGGLocal/source/dataset/coffee/images/fold%d/features.txt", it);
+            FILE* feature_file = fopen(feature_path, "a");
+            int fileIndex;
+            for (fileIndex=0;fileIndex<4096;fileIndex++) {
+            	fprintf(feature_file, "%f ", featureVector[fileIndex]);
+            }
+            fprintf(feature_file, "\n");
+            fclose(feature_file);
+        }
+        fclose(picture_file);
+    }
+    /// reads iteratively all the images in the UCMerced dataset
+    /*struct dirent *file;
+    struct dirent *folder;
+    DIR* dir_path = opendir("../dataset/UCMerced/images");
+    if (dir_path != NULL)
+    {
+        while( (folder = readdir (dir_path)) )
+        {
+            if(!strncmp(folder->d_name, ".", 1))
+                continue;
+            sprintf(dataset_dir, "%s/UCMerced/images/%s", DATASET_DIR, folder->d_name);
+            DIR* img_path = opendir(dataset_dir);
+            while( (file = readdir (img_path)) )
+            {
+                if(!strncmp(file->d_name, ".", 1))
+                    continue;
+                sprintf(image_path, "%s/%s", dataset_dir, file->d_name);
+                /// TODO create the forward method that will receive the path to each image in dataset and return a corresponding feature vector
+
+                fmaps = forward(image_path);
+
+                int numMaps;
+                for (numMaps=0;numMaps<4096;numMaps++) {
+                	FeatureMap *map = &fmaps[numMaps];
+                   	featureVector[numMaps] = map->data[0].channel1;
+                }
+
+                sprintf(feature_path, "%s/UCMerced/features/%s/features.txt", DATASET_DIR, folder->d_name);
+                FILE* feature_file = fopen(feature_path, "w");
+                fwrite(featureVector, sizeof(double), 4096, feature_file);
+                fclose(feature_file);
+            }
+            (void) closedir(img_path);
+        }
+        (void) closedir(dir_path);
+    }
+    else
+        perror("Couldn't open the directory");*/
+    return 0;
 }

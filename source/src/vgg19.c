@@ -12,10 +12,12 @@ double max(double poolRegion[], int kernelSize) {
 	int i;
 	double maxValue = poolRegion[0];
 	for (i=1;i<kernelSize*kernelSize;i++) {
+		//printf("poolregion: %g, ", poolRegion[i]);
 		if (poolRegion[i]>maxValue) {
 			maxValue = poolRegion[i];
 		}
 	}
+	printf("\n\n");
 
 	return maxValue;
 }
@@ -26,13 +28,12 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
 	//instantiate pooled image
 	FeatureMap *pooledImage = (FeatureMap *)malloc(sizeof(FeatureMap));
-
 	// check if img exists
 	if(featureMap){
 
 		//compute size of pooled image (feature map)
 		int pooledDimension = (featureMap->x-kernelSize)/stride+1;
-
+		//printf("pooledDimension %d", pooledDimension);
 
 		//allocate memory for the output pooled image
 		pooledImage->data = (FeatureMapPixel*)malloc(pooledDimension * pooledDimension * sizeof(FeatureMapPixel));
@@ -56,6 +57,7 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
 
 			//perform the max pooling
+			//printf("pooled data: %g", max(poolRegion, kernelSize));
 			pooledImage->data[dataIndex].channel1 = max(poolRegion, kernelSize);
 			dataIndex++;
 
@@ -77,8 +79,9 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
 void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_size) {
 	int k;
+
 	for (k=0;k<input_size;k++) {
-	    	maxPool(&featureMap[k], kernelSize, stride);
+		maxPool(&featureMap[k], kernelSize, stride);
 	}
 }
 
@@ -150,7 +153,10 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 		if (pixValue<0) { //isso é a reLU
 			pixValue = 0;
 		}
-		//printf("pixValue: %d\n", i);
+
+		//if (depth==512)
+		//	printf("pixValue: %g\n", pixValue);
+
 		convolutedImage->data[checker].channel1 = pixValue;
 
 		checker++;
@@ -167,6 +173,43 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 }
 
 
+void fullyConnectedKernel(FeatureMap *inputImage[], double *weights, int depth, FeatureMap *convolutedImage, double bias) {
+
+	//x and y dimensions are equal
+	FeatureMap *sampleImage = inputImage[0];
+	int kernelSize = sampleImage->x;
+	int stride = 1;
+	int convDimension = (sampleImage->x-kernelSize/*+2*paddingSize*/)/stride+1;
+	int weightOffset = kernelSize*kernelSize;
+
+	//allocate memory for the output convoluted image
+	convolutedImage->data = (FeatureMapPixel*)malloc(convDimension * convDimension * sizeof(FeatureMapPixel));
+	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
+
+	double pixValue;
+	int i;
+	for(i=0;i<(sampleImage->x * sampleImage->y); i= i+stride){
+
+		//varre os diferentes feature maps
+		pixValue = 0;
+		int z;
+		for (z=0;z<depth;z++) {
+			int weightIndex = 0;
+				pixValue += inputImage[z]->data[i].channel1*weights[z*weightOffset+weightIndex];
+				weightIndex++;
+
+		}// end for Z
+
+		pixValue += bias;
+		if (pixValue<0) { //isso é a reLU
+			pixValue = 0;
+		}
+
+		//printf("pixValue: %g\n", pixValue);
+	}
+	//essas camadas só geram 1 pixel
+	convolutedImage->data[0].channel1 = pixValue;
+}
 
 
 // Generate all featuremaps for the layer
@@ -194,11 +237,15 @@ FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int d
     //Generate all featuremaps 
     for(int i = 0; i < outputNumber; i++){
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
-      convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
+      fullyConnectedKernel(inputImage,updated_weight,depth, &featuremaps[i],bias[i]);
+      //convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
     }  
     
     return featuremaps;
 
-
 }  
+
+
+
+
 
