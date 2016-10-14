@@ -6,4 +6,5 @@
 
 # ignore databsase
 /source/images/
-
+/source/src/vgg19_weights.txt
+/source/src/vgg19
