@@ -101,21 +101,6 @@ FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int ker
 
 FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias) {
 
-   //convertendo pra um ponteiro de ponteiro
-   int k=0;
-   //FeatureMap *fMaps[depth];
-   //for (k=0;k<depth;k++) {
-	 ////  fMaps[k] = &featureMaps[k];
-   // //if(k == 0 ){
-   // //  int w;
-   // //  for(w =0; w < 49; w++){
-   // //    printf("FeatureMapsPixel[%d]: %g  == ",w, featureMaps[0].data[w].channel1);
-   // //    //printf("fMapsPixel[%d]: %g\n", w, fMaps[k]->data[w].channel1);
-   // //  }  
-   // //}  
-   //}
-   
-   //featureMaps = fullyConnectedLayer(fMaps, weights, depth, outputNumber, bias);
    featureMaps = fullyConnectedLayer(featureMaps, weights, depth, outputNumber, bias);
 
    return featureMaps;

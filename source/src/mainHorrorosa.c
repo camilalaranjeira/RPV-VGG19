@@ -125,8 +125,7 @@ int main() {
     /// reads iteratively all the images in the coffee dataset
 
 
-    //for(it = 1; it <= K_FOLD; it++)
-    for(it = 1; it <= 1; it++)
+    for(it = 1; it <= K_FOLD; it++)
     {
 
       i=0;
@@ -153,7 +152,7 @@ int main() {
       fclose(picture_file);
       //fprintf(feature_file, "\n");
 
-      //#pragma omp parallel for private(i,j,featureVector,fmaps)
+      #pragma omp parallel for private(i,j,featureVector,fmaps)
       for (i = 0; i < 600; i++){
         printf("%d Testando: %s\n", i, picture_names[i]);
 
@@ -165,15 +164,17 @@ int main() {
         	featureVector[j] = map.data[0].channel1;
 
         }
+        sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d_features/features%d.txt", it,i);
+        feature_file = fopen(feature_path, "w");
 
-        //sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features%d.txt", it,i);
-        feature_file = fopen(feature_path, "a");
-
+        
+       fprintf(feature_file, "%s", picture_names[i]);
         for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
-          printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
-        	//fprintf(feature_file, "%.15f ", featureVector[fileIndex]);
+          //printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
+        	fprintf(feature_file, ",%.15f", featureVector[fileIndex]);
         }
-        //fclose(feature_file);
+
+        fclose(feature_file);
 
       }  
     }
