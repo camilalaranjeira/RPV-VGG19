@@ -22,7 +22,7 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride);
 
 void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride, int input_size);
 
-void fullyConnectedKernel(FeatureMap *inputImage[], double *weights, int depth, FeatureMap *convolutedImage, double bias);
+void fullyConnectedKernel(FeatureMap inputImage[], double *weights, int depth, FeatureMap *convolutedImage, double bias);
 
 FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias);
 FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias);
@@ -37,7 +37,7 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias);
 
 //fully connected layer
-FeatureMap *fullyConnectedLayer(FeatureMap *inputImage[], double *weights, int depth, int outputNumber, double *bias);
+FeatureMap *fullyConnectedLayer(FeatureMap inputImage[], double *weights, int depth, int outputNumber, double *bias);
 
 
 #endif // _ppm_tools_h

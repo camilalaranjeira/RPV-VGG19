@@ -69,28 +69,34 @@ FeatureMap *forward(char *filePath){
     poolingLayer(featureMaps, 2,2, layer[15].input_size);
 
     //#############Camadas FC##########///////////////////
-    //printf("Camadas Fully-Connected\n");
+    printf("Camadas Fully-Connected\n");
     featureMaps = fcLayer(featureMaps, layer[16].weight, 512, layer[16].output_size, layer[16].bias);
-    featureMaps = fcLayer(featureMaps, layer[17].weight, 512, layer[17].output_size, layer[17].bias);
+    featureMaps = fcLayer(featureMaps, layer[17].weight, 4096, layer[17].output_size, layer[17].bias);
 
     //##########Computando tempo de execução########////////////////
     clock_t tempoFinal = clock();
     double tempoTotal = (double)(tempoFinal - tempoInicial) / CLOCKS_PER_SEC;
-    printf("Tempo total de execução do sistema por imagem: %f\n", tempoTotal);
+    printf("Tempo total de execução do sistema por imagem: %f  %g\n", tempoTotal, featureMaps[4095].data[0].channel1);
 
+    
+
+    //printing featureMaps
+    //int i;
+    //char index[50];
+    //for (i=0;i< 40 ;i++) {
+    //	sprintf(index, "deep%d.ppm", i);
+    //	writePPMFromFeatureMap(index,&featureMaps[i]);
+	  //}
+
+    //for (i=0; i< 4096; i++ ){
+    //for (i=0; i< 4096*512; i++ ){
+    //  //printf("Bias[%d]: %.18f\n", i, layer[17].bias[i]);
+    //  if (layer[17].weight[i] != 0.0){
+    //    printf("peso[%d]: %.18f\n", i, layer[17].weight[i]);
+    //  }  
+    //}     
 
     return featureMaps;
-    //printing featureMaps
-    /*int i;
-    char index[50];
-
-    for (i=0;i<layer[1].output_size;i++) {
-    	sprintf(index, "deep%d", i);
-    	strcat(index,".ppm");
-    	writePPMFromFeatureMap(index,&featureMaps[i]);
-	}
-
-    getchar();*/
 }
 
 int main() {
@@ -103,10 +109,10 @@ int main() {
     char dataset_dir[150];
     char picture_name[150];
     char feature_path[150];
-    FeatureMap *fmaps;
     double featureVector[4096];
     FILE* feature_file;
     int fileIndex;
+    FeatureMap *fmaps;
     FILE* picture_file; 
     char picture_names[610][150];
 
@@ -148,66 +154,29 @@ int main() {
       //fprintf(feature_file, "\n");
 
       //#pragma omp parallel for private(i,j,featureVector,fmaps)
-      for (i = 0; i < 601; i++){
+      for (i = 0; i < 600; i++){
         printf("%d Testando: %s\n", i, picture_names[i]);
+
         fmaps = forward(picture_names[i]);
+
         for (j = 0; j < numMaps; j++) {
-        	FeatureMap *map = &fmaps[j];
-          
-        	//printf("pixValue %g\n", map->data[0].channel1);
-        	featureVector[j] = map->data[0].channel1;
+
+        	FeatureMap map = fmaps[j];
+        	featureVector[j] = map.data[0].channel1;
+
         }
 
-        sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features%d.txt", it,i);
+        //sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features%d.txt", it,i);
         feature_file = fopen(feature_path, "a");
 
         for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
-          printf("numero %d: %f\n", fileIndex, featureVector[fileIndex]);
-        	fprintf(feature_file, "%f ", featureVector[fileIndex]);
+          printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
+        	//fprintf(feature_file, "%.15f ", featureVector[fileIndex]);
         }
-        fclose(feature_file);
+        //fclose(feature_file);
 
       }  
     }
 
-
-    /// reads iteratively all the images in the UCMerced dataset
-    /*struct dirent *file;
-    struct dirent *folder;
-    DIR* dir_path = opendir("../dataset/UCMerced/images");
-    if (dir_path != NULL)
-    {
-        while( (folder = readdir (dir_path)) )
-        {
-            if(!strncmp(folder->d_name, ".", 1))
-                continue;
-            sprintf(dataset_dir, "%s/UCMerced/images/%s", DATASET_DIR, folder->d_name);
-            DIR* img_path = opendir(dataset_dir);
-            while( (file = readdir (img_path)) )
-            {
-                if(!strncmp(file->d_name, ".", 1))
-                    continue;
-                sprintf(image_path, "%s/%s", dataset_dir, file->d_name);
-                /// TODO create the forward method that will receive the path to each image in dataset and return a corresponding feature vector
-
-                fmaps = forward(image_path);
-
-                int numMaps;
-                for (numMaps=0;numMaps<4096;numMaps++) {
-                	FeatureMap *map = &fmaps[numMaps];
-                   	featureVector[numMaps] = map->data[0].channel1;
-                }
-
-                sprintf(feature_path, "%s/UCMerced/features/%s/features.txt", DATASET_DIR, folder->d_name);
-                FILE* feature_file = fopen(feature_path, "w");
-                fwrite(featureVector, sizeof(double), 4096, feature_file);
-                fclose(feature_file);
-            }
-            (void) closedir(img_path);
-        }
-        (void) closedir(dir_path);
-    }
-    else
-        perror("Couldn't open the directory");*/
     return 0;
 }

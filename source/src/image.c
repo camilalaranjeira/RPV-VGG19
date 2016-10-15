@@ -144,6 +144,7 @@ void writePPMFromFeatureMap(const char *filename, FeatureMap *img)
     //convert FeatureMapPixel to PPMPixel
     int i;
     for ( i=0 ; i < img->x * img->y; i++){
+      //printf("PPM[%d]: %.18f ", i, img->data[i].channel1);
       data[i].red = img->data[i].channel1;
       data[i].green = 0;
       data[i].blue = 0;
