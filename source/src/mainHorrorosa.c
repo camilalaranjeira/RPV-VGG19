@@ -79,11 +79,6 @@ void forward(char *filePath, FeatureMap *featureMaps[]){
     double tempoTotal = (double)(tempoFinal - tempoInicial) / CLOCKS_PER_SEC;
     printf("Tempo total de execução do sistema por imagem: %f  %g\n", tempoTotal, featureMaps[17][4095].data[0].channel1);
 
-    //libera todos a memoria de todos os featuremaps menos o utimo
-    //for(i = 0 ; i< 17; i++ ){
-    //  free(featureMaps[i]);
-    //}   
-
     //return featureMaps;
 }
 
@@ -102,6 +97,7 @@ int main() {
     int fileIndex;
     FILE* picture_file; 
     char picture_names[610][150];
+    int picture_label[600];
     FeatureMap *featureMaps[18];
 
     /// reads the parameters of VGG 19
@@ -126,10 +122,12 @@ int main() {
         	if(!strncmp(picture_name, "coffee", 6))
             {
                 //picture_name = picture_name + 7;
+                picture_label[i] = 1;
                 memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
             }
             else
             {
+                picture_label[i] = 0;
                 memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
             }
         	 sprintf(image_path, "../images/brazilian_coffee_scenes/fold%d/%s.ppm", it, picture_name);
@@ -161,7 +159,7 @@ int main() {
         feature_file = fopen(feature_path, "w");
 
         
-       fprintf(feature_file, "%s", picture_names[i]);
+       fprintf(feature_file, "%d", picture_label[i]);
         for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
           //printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
         	fprintf(feature_file, ",%.15f", featureVector[fileIndex]);
