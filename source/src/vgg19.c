@@ -24,6 +24,7 @@ double max(double poolRegion[], int kernelSize) {
 //function to perform max pooling on an array
 void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 
+  int i;
 	//instantiate pooled image
 	FeatureMap *pooledImage = (FeatureMap *)malloc(sizeof(FeatureMap));
 	// check if img exists
@@ -36,6 +37,11 @@ void maxPool(FeatureMap *featureMap, int kernelSize, int stride) {
 		//allocate memory for the output pooled image
 		pooledImage->data = (FeatureMapPixel*)malloc(pooledDimension * pooledDimension * sizeof(FeatureMapPixel));
 		pooledImage->x = pooledDimension; pooledImage->y = pooledDimension;
+
+    // initicializa tudo com zero
+    for(i = 0; i < pooledDimension * pooledDimension; i++){
+      pooledImage->data[i].channel1 = 0.0;
+    }
 
 
 		//iterate over each image pixel
@@ -84,6 +90,7 @@ void poolingLayer(FeatureMap *featureMap, int kernelSize, int stride,int input_s
 }
 
 FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int kernelSize, int stride, int paddingSize, int depth, int outputNumber, double *bias) {
+
 	int k=0;
   for (k=0;k<depth;k++) {
   	featureMapZeroPad(&featureMaps[k], 1);
@@ -94,10 +101,12 @@ FeatureMap *convolutionalLayer(FeatureMap *featureMaps, double *weights, int ker
   for (k=0;k<depth;k++) {
 	  fMaps[k] = &featureMaps[k];
   }
-  featureMaps = convolutionLayer(fMaps,weights,kernelSize,1,1,depth, outputNumber, bias);
 
+  featureMaps = convolutionLayer(fMaps,weights,kernelSize,1,1,depth, outputNumber, bias);
   return featureMaps;
 }
+
+
 
 FeatureMap *fcLayer(FeatureMap *featureMaps, double *weights, int depth, int outputNumber, double *bias) {
 
@@ -125,6 +134,12 @@ void convoluteKernel(FeatureMap *inputImage[], double *weights, int kernelSize, 
 	int paddingOffset = (paddingSize*sampleImage->x) + paddingSize; //isso daqui reflete os zeros inseridos
 
 	int checker = 0;
+
+  // inicializa todos os pixel com zero
+  for(i = 0; i < convDimension * convDimension; i++){
+    convolutedImage->data[i].channel1 = 0.0;
+  }
+
 
 	//varre só nos pixels e desconsidera os 0s do padding
 	double pixValue;
@@ -174,23 +189,6 @@ void fullyConnectedKernel(FeatureMap inputImage[], double *weights, int depth, F
 	int convDimension = (sampleImage.x-kernelSize/*+2*paddingSize*/)/stride+1;
 	int weightOffset = kernelSize*kernelSize;
 
-  //int w,z;
-  //for(w =0; w< 2; w++){
-  //  for(z=0; z < 49; z++){
-  //    printf(" kernelPixel[%d]: %g\n |", z,inputImage[w].data[z].channel1);
-  //  } 
-  //  printf("\n\n");
-  //} 
-
-
-
-  // Imprime todos os pixels do primeiro feature map
-  //int z;
-  //for (z =0; z < 49; z++ ){
-  //  printf("Pixel[%d]: %.18f ", z,inputImage[0]->data[z].channel1);
-  //}  
-  //printf("\nesperando entrada");
-
 	//allocate memory for the output convoluted image
 	convolutedImage->data = (FeatureMapPixel*)malloc(convDimension * convDimension * sizeof(FeatureMapPixel));
 	convolutedImage->x = convDimension; convolutedImage->y = convDimension;
@@ -238,6 +236,13 @@ FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kern
       double *updated_weight  = weights + (kernelSize * depth * kernelSize * i);
       convoluteKernel(inputImage,updated_weight,kernelSize,stride,paddingSize,depth, &featuremaps[i],0, bias[i]);
     }  
+
+    //printf("Libernado memoria convolution\n");
+    //for(i=0; i < depth; i++){
+    //  printf("%d \n", i);
+    //  printf("%g \n", inputImage[i]->data[0].channel1);
+    //}  
+    //printf("Terminei memoria convolution\n");
     return featuremaps;
 }  
 
@@ -250,20 +255,12 @@ FeatureMap *fullyConnectedLayer(FeatureMap inputImage[], double *weights, int de
     // Get the kernel size based on the first image from the input
     int kernelSize = inputImage[0].x;
 
-    //int z,w;
-    //for(z=0; z< 2; z++){
-    //  for(w=0; w < 49; w++){
-    //    printf("DentroPixel[%d]: %g\n |", w, inputImage[z].data[w].channel1);
-    //  }  
-    //  printf("\n\n");
-    //}
 
     //Generate all featuremaps 
     int i;
     for(i = 0; i < outputNumber; i++){
       double *updated_weight = weights + (kernelSize * depth * kernelSize * i);
       fullyConnectedKernel(inputImage,updated_weight,depth, &featuremaps[i],bias[i]);
-      //convoluteKernel(inputImage,updated_weight,kernelSize,1,0,depth, &featuremaps[i],(kernelSize * kernelSize)/2,bias[i]);
     }  
     
     return featuremaps;
