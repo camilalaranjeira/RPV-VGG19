@@ -13,27 +13,36 @@ import sys
 
 # Dataset info
 project_root = os.getcwd()
-coffee_features = "../dataset/coffee/features/"
+coffee_features = "../features/coffee/"
 UCMerced_features = "../dataset/UCMerced/features/"
 # "coffee" or "UCMerced"
 dataset = "coffee"
 
 def cross_validate(data, labels, classifier):
-    """ data: [n_samples, n_features] 
-        labels: [n_samples] (value is 0 to n_labels)"""
-    kf = KFold(labels.size, n_folds=10)
     scores = []
-    for k, (train, test) in enumerate(kf):
-        classifier = classifier.fit(data[train], labels[train])
-        score = classifier.score(data[test], labels[test])
-        scores.append(score)        
-        print('{} fold: {:.4f}'.format(k, score))
+    if dataset == "coffee":
+	kf = [[np.array([1,2,3,4]), np.array([0])], \
+	      [np.array([0,2,3,4]), np.array([1])], \
+	      [np.array([0,1,3,4]), np.array([2])], \
+	      [np.array([0,1,2,4]), np.array([3])], \
+	      [np.array([0,1,2,3]), np.array([4])]]
+	for k, (train, test) in enumerate(kf):
+	    for t in train:
+		classifier = classifier.fit(data[t], labels[t])
+	    score = classifier.score(data[test], labels[test])
+	    scores.append(score)
+	    print('{} fold: {:.4f}'.format(k, score))
+
+    else:
+    	kf = KFold(labels.size, n_folds=5)
+
+    	for k, (train, test) in enumerate(kf):
+            classifier = classifier.fit(data[train], labels[train])
+            score = classifier.score(data[test], labels[test])
+            scores.append(score)
+    	    print('{} fold: {:.4f}'.format(k, score))
         
     return np.mean(scores)
-    
-def store_classifier(classifier):
-     # ===== Store classifier ===== #    
-    pickle.dump(classifier, open('classifier.p', 'wb'))
         
 if __name__ == '__main__':
     if len(sys.argv) == 2:
@@ -45,20 +54,16 @@ if __name__ == '__main__':
 	path = os.path.join(project_root, UCMerced_features)
 
     fold = sorted(os.listdir(path))
-    fold1 = fold.pop()
-    features = np.loadtxt(os.path.abspath(os.path.join(path, fold1, "features.txt")))
-    labels = np.loadtxt(os.path.abspath(os.path.join(path, fold1, "labels.txt")))
-    for ffold in fold:
-    	features = np.append(features, np.loadtxt(os.path.abspath(os.path.join(path, ffold, "features.txt"))), axis=0)
-    	labels = np.append(labels, np.loadtxt(os.path.abspath(os.path.join(path, ffold, "labels.txt"))), axis=0)
- 
-    print features
-    print labels   
-    features = preprocessing.scale(features)    
- 
-    clf = svm.LinearSVC(class_weight='balanced', C=1e-4)  
+    features = []
+    labels = []	
+
+    for k, ffold in enumerate(fold):
+        features.append(np.loadtxt(os.path.abspath(os.path.join(path, ffold)), delimiter=','))
+	labels.append(features[k][:, 0])
+	features[k] = np.delete(features[k], 0, 1) #delete first column (labels)
+	features[k] = preprocessing.scale(features[k])
+    
+    clf = svm.LinearSVC(class_weight='balanced', C=1e-3)
     acc = cross_validate(features, labels, clf)
     print('Mean accuracy: {:.4f}'.format(acc))    
-    
-    clf = clf.fit(features, labels)
-    #store_classifier(clf)
+
