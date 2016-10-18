@@ -39,5 +39,7 @@ FeatureMap *convolutionLayer(FeatureMap *inputImage[], double *weights, int kern
 //fully connected layer
 FeatureMap *fullyConnectedLayer(FeatureMap inputImage[], double *weights, int depth, int outputNumber, double *bias);
 
+// forward inside the neural network
+void forward(char *filePath, FeatureMap *featureMaps[], Layer *layer);
 
 #endif // _ppm_tools_h

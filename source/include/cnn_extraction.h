@@ -17,12 +17,13 @@ typedef struct
     int input_size;
     int output_size;
 }Layer;
-Layer *layer;
+
+//Layer *layer;
 
 /// Function that stores all the parameters of CNN in memory
-void cnnParameters(FILE *file);
+void cnnParameters(FILE *file, Layer *layer);
 
 /// Function that reads the CNN configuration file
-int readFile();
+Layer * readFile();
 
 #endif // _cnn_extraction_h
