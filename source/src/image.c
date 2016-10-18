@@ -248,7 +248,8 @@ PPMImage *Scale(PPMImage *img, float Sx, float Sy)
   S[1][0] = 0;
   S[1][1] = 1.0/Sy;
 
-  scl = CreateImage((int)(img->y*Sx + 0.5),(int)(img->x*Sy + 0.5));
+  scl = CreateImage((int)(224),(int)(224));
+  //scl = CreateImage((int)(img->y*Sx + 0.5),(int)(img->x*Sy + 0.5));
 
   for (v.y=0; v.y < scl->x; v.y++)
   {

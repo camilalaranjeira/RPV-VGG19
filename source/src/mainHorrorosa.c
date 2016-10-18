@@ -36,7 +36,6 @@ void forward(char *filePath, FeatureMap *featureMaps[]){
     printf("Primeiro bloco de camadas convolucionais %d \n", layer[0].input_size);
     featureMaps[0] = convolutionLayer(imgs,layer[0].weight,layer[0].kH,1,1,layer[0].input_size, layer[0].output_size, layer[0].bias);
     featureMaps[1] = convolutionalLayer(featureMaps[0], layer[1].weight,layer[1].kH,1,1,layer[1].input_size, layer[1].output_size, layer[1].bias);
-    //free(featureMaps[0]);
     poolingLayer(featureMaps[1], 2,2, layer[1].input_size);
 
     //#############Segundo Bloco##########///////////////////
@@ -109,66 +108,123 @@ int main() {
     /// reads iteratively all the images in the coffee dataset
 
 
-    for(it = 1; it <= K_FOLD; it++)
+    // primeiro dataset
+
+    //for(it = 4; it <= K_FOLD; it++)
+    //for(it = 1; it <= 1; it++)
+    //{
+
+    //  i=0;
+    //	sprintf(dataset_dir, "../images/brazilian_coffee_scenes/fold%d.txt", it);
+    //  //sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features.txt", it);
+    //  //feature_file = fopen(feature_path, "a");
+    //	picture_file = fopen(dataset_dir, "r");
+    //	while( (fscanf(picture_file, "%s", picture_name)) != EOF ){
+    //    	//printf("\nfileString: %s\n", picture_name);
+    //    	if(!strncmp(picture_name, "coffee", 6))
+    //        {
+    //            //picture_name = picture_name + 7;
+    //            picture_label[i] = 1;
+    //            memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
+    //        }
+    //        else
+    //        {
+    //            picture_label[i] = 0;
+    //            memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
+    //        }
+    //    	 sprintf(image_path, "../images/brazilian_coffee_scenes/fold%d/%s.ppm", it, picture_name);
+    //       strcpy(picture_names[i],image_path);
+    //       i++;
+
+    //  }
+    //  fclose(picture_file);
+    //  //fprintf(feature_file, "\n");
+
+    //  #pragma omp parallel for private(i,j,featureVector,featureMaps,feature_path,feature_file,fileIndex)
+    //  for (i = 0; i < 476; i++){
+    //    printf("%d Testando: %s\n", i, picture_names[i]);
+
+    //    forward(picture_names[i],featureMaps);
+
+    //    for (j = 0; j < numMaps; j++) {
+
+    //    	//FeatureMap map = fmaps[17][j];
+    //    	featureVector[j] = featureMaps[17][j].data[0].channel1;
+
+    //    }
+
+    //    // libera fmaps
+    //    free(*featureMaps);
+
+
+    //    sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d_features/features%d.txt", it,i);
+    //    feature_file = fopen(feature_path, "w");
+
+    //    
+    //   fprintf(feature_file, "%d", picture_label[i]);
+    //    for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
+    //      //printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
+    //    	fprintf(feature_file, ",%.15f", featureVector[fileIndex]);
+    //    }
+
+    //    fclose(feature_file);
+    //    
+    //  }  
+    //}
+
+	
+    // SEGUNDO DATA SET //		
+    
+    //labels do segundo data set
+    char * landUse[] = {  "agricultural","airplane","baseballdiamond","beach","buildings","chaparral","denseresidential","forest","freeway","golfcourse","harbor","intersection","mediumresidential","mobilehomepark","overpass","parkinglot","river","runway","sparseresidential","storagetanks","tenniscourt"};
+
+    //for(it = 4; it <= K_FOLD; it++)
+    for(it = 17; it < 18; it++)
     {
+	
+      // itera sobre as 100 images de cada categoria
+      #pragma omp parallel for private(i,j,featureVector,featureMaps,feature_path,feature_file,fileIndex,image_path)
+      for (i = 0; i < 100; i++){
 
-      i=0;
-    	sprintf(dataset_dir, "../images/brazilian_coffee_scenes/fold%d.txt", it);
-      //sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d/features.txt", it);
-      //feature_file = fopen(feature_path, "a");
-    	picture_file = fopen(dataset_dir, "r");
-    	while( (fscanf(picture_file, "%s", picture_name)) != EOF ){
-        	//printf("\nfileString: %s\n", picture_name);
-        	if(!strncmp(picture_name, "coffee", 6))
-            {
-                //picture_name = picture_name + 7;
-                picture_label[i] = 1;
-                memmove(picture_name, picture_name + 7, sizeof(picture_name)/sizeof(char));
-            }
-            else
-            {
-                picture_label[i] = 0;
-                memmove(picture_name, picture_name + 10, sizeof(picture_name)/sizeof(char));
-            }
-        	 sprintf(image_path, "../images/brazilian_coffee_scenes/fold%d/%s.ppm", it, picture_name);
-           strcpy(picture_names[i],image_path);
-           i++;
+	  printf("Teste: %02d\n", i);
+          sprintf(image_path, "../images/UCMerced_LandUse/Images/%s/%s%02d.ppm", landUse[it],landUse[it],i);
+          //sprintf(image_path, "../images/UCMerced_LandUse/Images/%s/%s55.ppm", landUse[it],landUse[it],i);
+      	  printf("%d Testando: %s\n", i, image_path);
 
+      	  forward(image_path,featureMaps);
+
+      	  for (j = 0; j < numMaps; j++) {
+
+      	  	//FeatureMap map = fmaps[17][j];
+      	  	featureVector[j] = featureMaps[17][j].data[0].channel1;
+
+      	  }
+
+      	  // libera fmaps
+      	  for(j=1; j < 18; j++){
+	    int k;
+	    for(k=0; k < layer[j].output_size; k++){
+            	free(featureMaps[j][k].data);
+	    } 
+            free(featureMaps[j]);
+	  }
+	  free(*featureMaps);
+
+      	  sprintf(feature_path, "../images/UCMerced_LandUse/Images/%s_features/%02d.txt", landUse[it],i);
+      	  feature_file = fopen(feature_path, "w");
+
+      	  
+      	  fprintf(feature_file, "%d", it);
+      	  for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
+      	    //printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
+      	  	fprintf(feature_file, ",%.15f", featureVector[fileIndex]);
+      	  }
+
+      	  fclose(feature_file);
+      	}		
+        
       }
-      fclose(picture_file);
-      //fprintf(feature_file, "\n");
 
-      #pragma omp parallel for private(i,j,featureVector,featureMaps,feature_path,feature_file,fileIndex)
-      for (i = 0; i < 600; i++){
-        printf("%d Testando: %s\n", i, picture_names[i]);
-
-        forward(picture_names[i],featureMaps);
-
-        for (j = 0; j < numMaps; j++) {
-
-        	//FeatureMap map = fmaps[17][j];
-        	featureVector[j] = featureMaps[17][j].data[0].channel1;
-
-        }
-
-        // libera fmaps
-        free(*featureMaps);
-
-
-        sprintf(feature_path, "../images/brazilian_coffee_scenes/fold%d_features/features%d.txt", it,i);
-        feature_file = fopen(feature_path, "w");
-
-        
-       fprintf(feature_file, "%d", picture_label[i]);
-        for (fileIndex = 0; fileIndex < numMaps; fileIndex++) {
-          //printf("numero %d: %lf\n", fileIndex, featureVector[fileIndex]);
-        	fprintf(feature_file, ",%.15f", featureVector[fileIndex]);
-        }
-
-        fclose(feature_file);
-        
-      }  
-    }
 
     return 0;
 }
