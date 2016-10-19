@@ -1,4 +1,3 @@
-#include "../include/cnn_extraction.h"
 #include "../include/image.h"
 
 

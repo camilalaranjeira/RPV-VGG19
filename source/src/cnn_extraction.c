@@ -6,7 +6,7 @@
 #define PATH "vgg19_weights.txt"
 
 void
-cnnParameters(FILE* file, Layer *layer)
+cnnParameters(FILE* file)
 {
     /// variables
     int count;
@@ -53,12 +53,11 @@ cnnParameters(FILE* file, Layer *layer)
     }
 }
 
-Layer *
+int
 readFile()
 {
     /// variables
     FILE* in_file;
-    Layer *layer;
     /// allocates the number of layers according to CNN used
     layer = (Layer *) malloc(sizeof(Layer) * LAYERS);
     in_file = fopen(PATH, "r");
@@ -68,7 +67,7 @@ readFile()
         exit(-1);
     }
     /// read the CNN file and set the parameters for each layer
-    cnnParameters(in_file,layer);
+    cnnParameters(in_file);
     fclose(in_file);
-    return layer;
+    return 0;
 }
